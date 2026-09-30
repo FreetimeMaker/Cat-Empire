@@ -1,4 +1,4 @@
-package com.freetime.template.ui
+package com.freetime.catempire.ui
 
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -21,8 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.freetime.template.game.CatActivity
-import com.freetime.template.game.OwnedCat
+import com.freetime.catempire.game.CatActivity
+import com.freetime.catempire.game.OwnedCat
 
 @Composable
 fun CatActivityScene(
