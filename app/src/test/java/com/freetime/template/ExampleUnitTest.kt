@@ -1,4 +1,4 @@
-package com.freetime.template
+package com.freetime.catempire
 
 import org.junit.Test
 
