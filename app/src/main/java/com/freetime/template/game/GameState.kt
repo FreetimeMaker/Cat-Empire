@@ -6,6 +6,8 @@ data class GameState(
     val totalPurrsEarned: Double = 0.0,
     val cats: List<CatType> = starterCats(),
     val upgrades: List<CatUpgrade> = starterUpgrades(),
+    val lastCatNapPurrs: Double = 0.0,
+    val lastCatNapSeconds: Long = 0L,
 ) {
     val purrsPerPet: Double
         get() = 1.0 + upgrades
