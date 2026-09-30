@@ -24,6 +24,9 @@ data class CatRoom(
 
     val multiplier: Double
         get() = 1.0 + bonusPerLevel * level
+
+    val capacity: Int
+        get() = 1 + level
 }
 
 fun starterRooms() = listOf(
