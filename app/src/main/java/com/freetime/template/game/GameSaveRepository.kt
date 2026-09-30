@@ -92,6 +92,9 @@ class GameSaveRepository(context: Context) {
                     bondXp = parts.getOrNull(5)?.toLongOrNull() ?: 0L,
                     activity = parts.getOrNull(6)?.let { CatActivity.valueOf(it) } ?: CatActivity.SLEEPING,
                     collarId = parts.getOrNull(7) ?: "none",
+                    happiness = parts.getOrNull(8)?.toIntOrNull() ?: 80,
+                    energy = parts.getOrNull(9)?.toIntOrNull() ?: 80,
+                    satiety = parts.getOrNull(10)?.toIntOrNull() ?: 80,
                 )
             }.getOrNull()
         }
