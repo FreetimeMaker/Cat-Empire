@@ -25,6 +25,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.freetime.template.game.CatType
+import com.freetime.template.game.CatUpgrade
+import com.freetime.template.game.UpgradeEffect
 import com.freetime.template.game.GameViewModel
 import java.text.DecimalFormat
 
@@ -104,7 +106,75 @@ fun GameScreen(
             )
         }
 
+        Spacer(Modifier.height(4.dp))
+        Text(
+            "Cat Toys & Upgrades",
+            modifier = Modifier.fillMaxWidth(),
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+        )
+        Text(
+            "Spoil your cats with toys and cozy furniture to grow your empire faster.",
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+
+        state.upgrades.forEach { upgrade ->
+            UpgradeCard(
+                upgrade = upgrade,
+                canAfford = state.purrs >= upgrade.nextCost,
+                onBuy = { viewModel.buyUpgrade(upgrade.id) },
+            )
+        }
+
         Spacer(Modifier.height(24.dp))
+    }
+}
+
+@Composable
+private fun UpgradeCard(
+    upgrade: CatUpgrade,
+    canAfford: Boolean,
+    onBuy: () -> Unit,
+) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier.padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(upgrade.emoji, style = MaterialTheme.typography.headlineLarge)
+                    Column {
+                        Text(upgrade.name, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                        Text("Level " + upgrade.level)
+                    }
+                }
+                Text(
+                    when (upgrade.effect) {
+                        UpgradeEffect.PET_POWER -> "+" + formatPurrs(upgrade.bonusPerLevel) + " / pet"
+                        UpgradeEffect.CAT_PRODUCTION -> "+" + (upgrade.bonusPerLevel * 100).toInt() + "% cats"
+                    },
+                    style = MaterialTheme.typography.titleMedium,
+                )
+            }
+
+            Text(upgrade.description, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Button(
+                onClick = onBuy,
+                enabled = canAfford,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("Upgrade for ♡ " + formatPurrs(upgrade.nextCost))
+            }
+        }
     }
 }
 
