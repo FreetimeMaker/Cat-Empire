@@ -1,13 +1,21 @@
 package com.freetime.template.game
 
-enum class CatPersonality(val label: String, val multiplier: Double) {
-    LAZY("Lazy", 1.05),
-    PLAYFUL("Playful", 1.10),
-    CURIOUS("Curious", 1.12),
-    AFFECTIONATE("Affectionate", 1.15),
-    SHY("Shy", 1.08),
-    CHAOTIC("Chaotic", 1.20),
-    HUNGRY("Hungry", 1.10),
+enum class CatPersonality(
+    val label: String,
+    val multiplier: Double,
+    val hungerDrain: Int,
+    val energyDrain: Int,
+    val petHappiness: Int,
+    val playHappiness: Int,
+    val restRecovery: Int,
+) {
+    LAZY("Lazy", 1.05, 1, 0, 2, 12, 45),
+    PLAYFUL("Playful", 1.10, 1, 2, 2, 30, 25),
+    CURIOUS("Curious", 1.12, 1, 2, 2, 22, 25),
+    AFFECTIONATE("Affectionate", 1.15, 1, 1, 6, 20, 30),
+    SHY("Shy", 1.08, 1, 1, 1, 16, 35),
+    CHAOTIC("Chaotic", 1.20, 2, 3, 2, 25, 20),
+    HUNGRY("Hungry", 1.10, 3, 1, 2, 18, 30),
 }
 
 enum class CatActivity(val label: String, val emoji: String, val multiplier: Double) {
