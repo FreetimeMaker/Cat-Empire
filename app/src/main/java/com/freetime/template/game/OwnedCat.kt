@@ -10,6 +10,18 @@ enum class CatPersonality(val label: String, val multiplier: Double) {
     HUNGRY("Hungry", 1.10),
 }
 
+enum class CatActivity(val label: String, val emoji: String, val multiplier: Double) {
+    SLEEPING("Sleeping", "💤", 0.75),
+    EATING("Eating", "🍗", 0.90),
+    PLAYING("Playing", "🧶", 1.25),
+    WATCHING_BIRDS("Watching birds", "🐦", 1.10),
+    SITTING_IN_BOX("Sitting in a box", "📦", 1.20),
+    EXPLORING("Exploring", "🐾", 1.15),
+    ASKING_FOR_PETS("Asking for pets", "❤️", 1.10),
+    ZOOMIES("Zoomies", "💨", 3.00),
+    CHAOS("Causing chaos", "😼", 1.75),
+}
+
 enum class CatRarity(val label: String, val multiplier: Double) {
     COMMON("Common", 1.0),
     RARE("Rare", 1.25),
@@ -24,6 +36,7 @@ data class OwnedCat(
     val personality: CatPersonality,
     val rarity: CatRarity,
     val bondXp: Long = 0L,
+    val activity: CatActivity = CatActivity.SLEEPING,
 ) {
     val bondLevel: Int
         get() = (bondXp / 25L).toInt().coerceIn(0, 100) + 1
@@ -42,7 +55,7 @@ data class OwnedCat(
         }
 
     fun production(base: Double) =
-        base * personality.multiplier * rarity.multiplier * bondMultiplier
+        base * personality.multiplier * rarity.multiplier * bondMultiplier * activity.multiplier
 }
 
 private val names = listOf(
