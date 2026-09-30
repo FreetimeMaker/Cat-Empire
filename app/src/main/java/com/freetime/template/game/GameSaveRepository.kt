@@ -19,6 +19,7 @@ class GameSaveRepository(context: Context) {
             editor.putString("ownedCat_" + index, listOf(cat.id, cat.typeId, cat.name, cat.personality.name, cat.rarity.name, cat.bondXp).joinToString("|"))
         }
         state.upgrades.forEach { editor.putInt("upgrade_" + it.id, it.level) }
+        editor.putString("achievements", state.claimedPawchievements.joinToString(";"))
         editor.apply()
     }
 
@@ -32,6 +33,7 @@ class GameSaveRepository(context: Context) {
             ownedCats = loadOwnedCats(),
             selectedCatId = prefs.getLong("selectedCatId", -1L).takeIf { it >= 0L },
             upgrades = starterUpgrades().map { it.copy(level = prefs.getInt("upgrade_" + it.id, 0)) },
+            claimedPawchievements = prefs.getString("achievements", "").orEmpty().split(";").filter { it.isNotBlank() }.toSet(),
         )
         return SavedGame(state, prefs.getLong("savedAt", System.currentTimeMillis()))
     }
