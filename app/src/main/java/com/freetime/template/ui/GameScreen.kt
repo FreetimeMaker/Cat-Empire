@@ -136,7 +136,20 @@ fun GameScreen(
         }
 
         Spacer(Modifier.height(4.dp))
-        Text("Cat Home", modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        Text("Nine Lives", modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Lives: " + state.lives, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                Text("Permanent production: x" + purrFormat.format(state.prestigeMultiplier))
+                Text("Each new life permanently adds 25% production.")
+                Button(onClick = viewModel::startNewLife, enabled = state.homeLevel >= 5, modifier = Modifier.fillMaxWidth()) {
+                    Text(if (state.homeLevel >= 5) "Start a new life" else "Reach Cat Sanctuary to unlock")
+                }
+            }
+        }
+
+        Spacer(Modifier.height(4.dp))
+                Text("Cat Home", modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(state.home.emoji + " " + state.home.name, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
