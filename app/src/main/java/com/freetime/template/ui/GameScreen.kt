@@ -440,6 +440,18 @@ private fun MyCatCard(
         Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
             Text((type?.emoji ?: "Cat") + " " + cat.name, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
             Text((type?.name ?: "Cat") + " - " + cat.personality.label)
+            Text(
+                when (cat.personality) {
+                    com.freetime.template.game.CatPersonality.LAZY -> "Trait: Loves naps - recovers energy quickly."
+                    com.freetime.template.game.CatPersonality.PLAYFUL -> "Trait: Toy lover - gains extra happiness from play."
+                    com.freetime.template.game.CatPersonality.CURIOUS -> "Trait: Explorer - enjoys activity but uses more energy."
+                    com.freetime.template.game.CatPersonality.AFFECTIONATE -> "Trait: Cuddly - gains much more happiness from pets."
+                    com.freetime.template.game.CatPersonality.SHY -> "Trait: Quiet - prefers rest and gentle attention."
+                    com.freetime.template.game.CatPersonality.CHAOTIC -> "Trait: Chaos machine - powerful but burns energy fast."
+                    com.freetime.template.game.CatPersonality.HUNGRY -> "Trait: Snack obsessed - gets hungry much faster."
+                },
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
             Text(cat.rarity.label + " - " + formatPurrs(cat.production(type?.basePurrsPerSecond ?: 0.0)) + " Purrs/s", color = MaterialTheme.colorScheme.primary)
             Text(cat.activity.emoji + " " + cat.activity.label + " - x" + purrFormat.format(cat.activity.multiplier))
             Text("Bond Level " + cat.bondLevel + " - " + cat.bondProgress + " / 25 XP")
