@@ -61,67 +61,61 @@ fun GameScreen(
         }
     }
 
-    if (confirmNewLife) {
-        AlertDialog(
-            onDismissRequest = { confirmNewLife = false },
-            title = { Text("Start a new life?") },
-            text = { Text("Your current cats, Purrs, home, rooms and upgrades reset. Catdex discoveries, achievements and all-time stats stay. You gain a permanent +25% production bonus.") },
-            confirmButton = {
-                Button(onClick = {
-                    viewModel.startNewLife()
-                    confirmNewLife = false
-                }) { Text("Start new life") }
-            },
-            dismissButton = {
-                Button(onClick = { confirmNewLife = false }) { Text("Cancel") }
-            },
-        )
-    }
-
-    state.activeEvent?.let { event ->
-        AlertDialog(
-            onDismissRequest = {},
-            title = { Text(event.emoji + " " + event.title) },
-            text = { Text(event.description) },
-            confirmButton = {
-                Button(onClick = viewModel::resolveEvent) {
-                    Text(event.action)
-                }
-            },
-        )
-    }
-
-    state.lastMysteryReward?.let { reward ->
-        AlertDialog(
-            onDismissRequest = viewModel::dismissMysteryReward,
-            title = { Text("Mystery Box") },
-            text = { Text(reward) },
-            confirmButton = { Button(onClick = viewModel::dismissMysteryReward) { Text("Collect") } },
-        )
-    }
-
-    if (state.lastCatNapPurrs > 0.0) {
-        AlertDialog(
-            onDismissRequest = viewModel::dismissCatNap,
-            title = { Text("💤 Cat Nap") },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Your cats kept purring while you were away.")
-                    Text("Nap time: " + formatDuration(state.lastCatNapSeconds))
-                    Text(
-                        "♡ +" + formatPurrs(state.lastCatNapPurrs) + " Purrs",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                    )
-                    Text("Offline production is counted for up to 8 hours.")
-                }
-            },
-            confirmButton = {
-                Button(onClick = viewModel::dismissCatNap) {
-                    Text("Collect")
-                }
-            },
-        )
+    when {
+        confirmNewLife -> {
+            AlertDialog(
+                onDismissRequest = { confirmNewLife = false },
+                title = { Text("Start a new life?") },
+                text = { Text("Your current cats, Purrs, home, rooms and upgrades reset. Catdex discoveries, achievements and all-time stats stay. You gain a permanent +25% production bonus.") },
+                confirmButton = {
+                    Button(onClick = {
+                        viewModel.startNewLife()
+                        confirmNewLife = false
+                    }) { Text("Start new life") }
+                },
+                dismissButton = { Button(onClick = { confirmNewLife = false }) { Text("Cancel") } },
+            )
+        }
+        state.lastCatNapPurrs > 0.0 -> {
+            AlertDialog(
+                onDismissRequest = viewModel::dismissCatNap,
+                title = { Text("Cat Nap") },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("Your cats kept purring while you were away.")
+                        Text("Nap time: " + formatDuration(state.lastCatNapSeconds))
+                        Text("+" + formatPurrs(state.lastCatNapPurrs) + " Purrs", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                        Text("Offline production is counted for up to 8 hours.")
+                    }
+                },
+                confirmButton = { Button(onClick = viewModel::dismissCatNap) { Text("Collect") } },
+            )
+        }
+        state.lastMysteryReward != null -> {
+            AlertDialog(
+                onDismissRequest = viewModel::dismissMysteryReward,
+                title = { Text("Mystery Box") },
+                text = { Text(state.lastMysteryReward.orEmpty()) },
+                confirmButton = { Button(onClick = viewModel::dismissMysteryReward) { Text("Collect") } },
+            )
+        }
+        state.lastEventResult != null -> {
+            AlertDialog(
+                onDismissRequest = viewModel::dismissEventResult,
+                title = { Text("Cat Event") },
+                text = { Text(state.lastEventResult.orEmpty()) },
+                confirmButton = { Button(onClick = viewModel::dismissEventResult) { Text("Continue") } },
+            )
+        }
+        state.activeEvent != null -> {
+            val event = state.activeEvent
+            AlertDialog(
+                onDismissRequest = {},
+                title = { Text(event.emoji + " " + event.title) },
+                text = { Text(event.description) },
+                confirmButton = { Button(onClick = viewModel::resolveEvent) { Text(event.action) } },
+            )
+        }
     }
 
     Column(modifier = modifier.fillMaxSize()) {
