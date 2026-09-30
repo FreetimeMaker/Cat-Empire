@@ -23,8 +23,26 @@ data class OwnedCat(
     val name: String,
     val personality: CatPersonality,
     val rarity: CatRarity,
+    val bondXp: Long = 0L,
 ) {
-    fun production(base: Double) = base * personality.multiplier * rarity.multiplier
+    val bondLevel: Int
+        get() = (bondXp / 25L).toInt().coerceIn(0, 100) + 1
+
+    val bondProgress: Int
+        get() = (bondXp % 25L).toInt()
+
+    val bondMultiplier: Double
+        get() = when {
+            bondLevel >= 100 -> 2.0
+            bondLevel >= 50 -> 1.5
+            bondLevel >= 20 -> 1.25
+            bondLevel >= 10 -> 1.15
+            bondLevel >= 5 -> 1.10
+            else -> 1.0
+        }
+
+    fun production(base: Double) =
+        base * personality.multiplier * rarity.multiplier * bondMultiplier
 }
 
 private val names = listOf(
