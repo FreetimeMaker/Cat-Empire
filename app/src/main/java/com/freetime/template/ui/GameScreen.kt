@@ -73,6 +73,15 @@ fun GameScreen(
         )
     }
 
+    state.lastMysteryReward?.let { reward ->
+        AlertDialog(
+            onDismissRequest = viewModel::dismissMysteryReward,
+            title = { Text("Mystery Box") },
+            text = { Text(reward) },
+            confirmButton = { Button(onClick = viewModel::dismissMysteryReward) { Text("Collect") } },
+        )
+    }
+
     if (state.lastCatNapPurrs > 0.0) {
         AlertDialog(
             onDismissRequest = viewModel::dismissCatNap,
