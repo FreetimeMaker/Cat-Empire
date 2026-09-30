@@ -40,6 +40,19 @@ fun GameScreen(
 ) {
     val state by viewModel.state
 
+    state.activeEvent?.let { event ->
+        AlertDialog(
+            onDismissRequest = {},
+            title = { Text(event.emoji + " " + event.title) },
+            text = { Text(event.description) },
+            confirmButton = {
+                Button(onClick = viewModel::resolveEvent) {
+                    Text(event.action)
+                }
+            },
+        )
+    }
+
     if (state.lastCatNapPurrs > 0.0) {
         AlertDialog(
             onDismissRequest = viewModel::dismissCatNap,
@@ -88,6 +101,13 @@ fun GameScreen(
             formatPurrs(state.purrsPerSecond) + " Purrs / second",
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+        if (state.eventSeconds > 0) {
+            Text(
+                "Event boost: x" + purrFormat.format(state.eventMultiplier) + " - " + state.eventSeconds + "s",
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold,
+            )
+        }
 
         Text("🐱", style = MaterialTheme.typography.displayLarge)
         Button(
