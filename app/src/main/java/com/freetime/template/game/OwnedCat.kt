@@ -38,6 +38,9 @@ data class OwnedCat(
     val bondXp: Long = 0L,
     val activity: CatActivity = CatActivity.SLEEPING,
     val collarId: String = "none",
+    val happiness: Int = 80,
+    val energy: Int = 80,
+    val satiety: Int = 80,
 ) {
     val bondLevel: Int
         get() = ((bondXp / 25L).toInt() + 1).coerceIn(1, 100)
@@ -55,8 +58,12 @@ data class OwnedCat(
             else -> 1.0
         }
 
+    val needsMultiplier: Double
+        get() = (0.4 + (happiness + energy + satiety) / 500.0).coerceIn(0.4, 1.0)
+
     fun production(base: Double) =
-        base * personality.multiplier * rarity.multiplier * bondMultiplier * activity.multiplier * collarById(collarId).productionMultiplier
+        base * personality.multiplier * rarity.multiplier * bondMultiplier * activity.multiplier *
+            collarById(collarId).productionMultiplier * needsMultiplier
 }
 
 private val names = listOf(
