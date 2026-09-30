@@ -117,6 +117,7 @@ fun GameScreen(
             )
         }
 
+        if (selectedTab.showsHome()) {
         Text("🐱", style = MaterialTheme.typography.displayLarge)
         Button(
             onClick = viewModel::petCat,
@@ -164,6 +165,9 @@ fun GameScreen(
             }
         }
 
+        }
+
+        if (selectedTab.showsMore()) {
         Spacer(Modifier.height(4.dp))
         Text("Nine Lives", modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
         Card(modifier = Modifier.fillMaxWidth()) {
@@ -177,6 +181,9 @@ fun GameScreen(
             }
         }
 
+        }
+
+        if (selectedTab.showsHome()) {
         Spacer(Modifier.height(4.dp))
                 Text("Cat Home", modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
         Card(modifier = Modifier.fillMaxWidth()) {
@@ -199,6 +206,9 @@ fun GameScreen(
             }
         }
 
+        }
+
+        if (selectedTab.showsCats()) {
         Spacer(Modifier.height(4.dp))
         Text(
             "Adoption Center",
@@ -220,6 +230,9 @@ fun GameScreen(
             )
         }
 
+        }
+
+        if (selectedTab.showsCatdex()) {
         Spacer(Modifier.height(4.dp))
         Text("Catdex", modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
         val discoveredTypes = state.ownedCats.map { it.typeId }.toSet()
@@ -238,7 +251,9 @@ fun GameScreen(
             }
         }
 
-        if (state.ownedCats.isNotEmpty()) {
+        }
+
+        if (selectedTab.showsCats() && state.ownedCats.isNotEmpty()) {
             Spacer(Modifier.height(4.dp))
             Text("My Cats", modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
             Text("Every cat has its own name, personality and rarity.", modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -254,6 +269,7 @@ fun GameScreen(
             }
         }
 
+        if (selectedTab.showsMore()) {
         Spacer(Modifier.height(4.dp))
         Text("Pawchievements", modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
         pawchievements.forEach { achievement ->
@@ -275,6 +291,9 @@ fun GameScreen(
             }
         }
 
+        }
+
+        if (selectedTab.showsUpgrades()) {
         Spacer(Modifier.height(4.dp))
         Text(
             "Cat Toys & Upgrades",
@@ -294,6 +313,8 @@ fun GameScreen(
                 canAfford = state.purrs >= upgrade.nextCost,
                 onBuy = { viewModel.buyUpgrade(upgrade.id) },
             )
+        }
+
         }
 
         Spacer(Modifier.height(24.dp))
