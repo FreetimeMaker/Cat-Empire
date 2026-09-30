@@ -81,6 +81,23 @@ fun CatActivityScene(
                 cat.activity.emoji + " " + cat.activity.label,
                 color = MaterialTheme.colorScheme.onTertiaryContainer,
             )
+            Text(
+                activityMessage(cat.activity),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onTertiaryContainer,
+            )
         }
     }
+}
+
+private fun activityMessage(activity: CatActivity): String = when (activity) {
+    CatActivity.SLEEPING -> "Dreaming about treats."
+    CatActivity.EATING -> "Snack time is serious business."
+    CatActivity.PLAYING -> "The yarn never stood a chance."
+    CatActivity.WATCHING_BIRDS -> "Important bird surveillance in progress."
+    CatActivity.SITTING_IN_BOX -> "If it fits, it sits."
+    CatActivity.EXPLORING -> "Inspecting every corner of the empire."
+    CatActivity.ASKING_FOR_PETS -> "Attention is required immediately."
+    CatActivity.ZOOMIES -> "Maximum speed. No destination."
+    CatActivity.CHAOS -> "Everything is completely under control."
 }
