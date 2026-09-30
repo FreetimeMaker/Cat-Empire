@@ -136,6 +136,27 @@ fun GameScreen(
         }
 
         Spacer(Modifier.height(4.dp))
+        Text("Morning Meow", modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                val now = System.currentTimeMillis()
+                val elapsed = now - state.lastDailyClaimAt
+                val canClaim = state.lastDailyClaimAt == 0L || elapsed >= 24L * 60L * 60L * 1000L
+                val nextStreak = if (state.lastDailyClaimAt > 0L && elapsed <= 48L * 60L * 60L * 1000L) {
+                    (state.dailyStreak + 1).coerceAtMost(7)
+                } else {
+                    1
+                }
+                val reward = (state.purrsPerSecond * (120.0 + nextStreak * 60.0)).coerceAtLeast(250.0 * nextStreak)
+                Text("Current streak: " + state.dailyStreak + " / 7 days")
+                Text("Next reward: " + formatPurrs(reward) + " Purrs")
+                Button(onClick = viewModel::claimDailyReward, enabled = canClaim, modifier = Modifier.fillMaxWidth()) {
+                    Text(if (canClaim) "Claim Morning Meow" else "Come back tomorrow")
+                }
+            }
+        }
+
+        Spacer(Modifier.height(4.dp))
         Text("Nine Lives", modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
