@@ -23,6 +23,20 @@ class GameViewModel : ViewModel() {
         )
     }
 
+    fun adoptCat(catId: String) {
+        val current = _state.value
+        val cat = current.cats.firstOrNull { it.id == catId } ?: return
+        val cost = cat.nextCost
+        if (current.purrs < cost) return
+
+        _state.value = current.copy(
+            purrs = current.purrs - cost,
+            cats = current.cats.map {
+                if (it.id == catId) it.copy(owned = it.owned + 1) else it
+            },
+        )
+    }
+
     private fun startIdleLoop() {
         viewModelScope.launch {
             while (isActive) {
