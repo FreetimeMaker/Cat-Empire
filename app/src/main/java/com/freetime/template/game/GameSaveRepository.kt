@@ -11,11 +11,12 @@ class GameSaveRepository(context: Context) {
             .putLong("totalPets", state.totalPets)
             .putString("totalPurrs", state.totalPurrsEarned.toString())
             .putLong("savedAt", System.currentTimeMillis())
+            .putLong("selectedCatId", state.selectedCatId ?: -1L)
 
         state.cats.forEach { editor.putInt("cat_" + it.id, it.owned) }
         editor.putLong("ownedCatCount", state.ownedCats.size.toLong())
         state.ownedCats.forEachIndexed { index, cat ->
-            editor.putString("ownedCat_" + index, listOf(cat.id, cat.typeId, cat.name, cat.personality.name, cat.rarity.name).joinToString("|"))
+            editor.putString("ownedCat_" + index, listOf(cat.id, cat.typeId, cat.name, cat.personality.name, cat.rarity.name, cat.bondXp).joinToString("|"))
         }
         state.upgrades.forEach { editor.putInt("upgrade_" + it.id, it.level) }
         editor.apply()
@@ -29,6 +30,7 @@ class GameSaveRepository(context: Context) {
             totalPurrsEarned = prefs.getString("totalPurrs", "0")?.toDoubleOrNull() ?: 0.0,
             cats = starterCats().map { it.copy(owned = prefs.getInt("cat_" + it.id, 0)) },
             ownedCats = loadOwnedCats(),
+            selectedCatId = prefs.getLong("selectedCatId", -1L).takeIf { it >= 0L },
             upgrades = starterUpgrades().map { it.copy(level = prefs.getInt("upgrade_" + it.id, 0)) },
         )
         return SavedGame(state, prefs.getLong("savedAt", System.currentTimeMillis()))
@@ -38,7 +40,7 @@ class GameSaveRepository(context: Context) {
         val count = prefs.getLong("ownedCatCount", 0L).toInt()
         return (0 until count).mapNotNull { index ->
             val parts = prefs.getString("ownedCat_" + index, null)?.split("|") ?: return@mapNotNull null
-            if (parts.size != 5) return@mapNotNull null
+            if (parts.size < 5) return@mapNotNull null
             runCatching {
                 OwnedCat(
                     id = parts[0].toLong(),
@@ -46,6 +48,7 @@ class GameSaveRepository(context: Context) {
                     name = parts[2],
                     personality = CatPersonality.valueOf(parts[3]),
                     rarity = CatRarity.valueOf(parts[4]),
+                    bondXp = parts.getOrNull(5)?.toLongOrNull() ?: 0L,
                 )
             }.getOrNull()
         }
