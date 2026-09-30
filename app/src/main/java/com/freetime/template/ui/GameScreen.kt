@@ -29,6 +29,7 @@ import com.freetime.template.game.CatType
 import com.freetime.template.game.CatUpgrade
 import com.freetime.template.game.UpgradeEffect
 import com.freetime.template.game.GameViewModel
+import com.freetime.template.game.OwnedCat
 import java.text.DecimalFormat
 
 @Composable
@@ -131,6 +132,15 @@ fun GameScreen(
             )
         }
 
+        if (state.ownedCats.isNotEmpty()) {
+            Spacer(Modifier.height(4.dp))
+            Text("My Cats", modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+            Text("Every cat has its own name, personality and rarity.", modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.onSurfaceVariant)
+            state.ownedCats.asReversed().forEach { owned ->
+                MyCatCard(owned, state.cats.firstOrNull { it.id == owned.typeId })
+            }
+        }
+
         Spacer(Modifier.height(4.dp))
         Text(
             "Cat Toys & Upgrades",
@@ -153,6 +163,17 @@ fun GameScreen(
         }
 
         Spacer(Modifier.height(24.dp))
+    }
+}
+
+@Composable
+private fun MyCatCard(cat: OwnedCat, type: CatType?) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text((type?.emoji ?: "Cat") + " " + cat.name, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            Text((type?.name ?: "Cat") + " - " + cat.personality.label)
+            Text(cat.rarity.label + " - " + formatPurrs(cat.production(type?.basePurrsPerSecond ?: 0.0)) + " Purrs/s", color = MaterialTheme.colorScheme.primary)
+        }
     }
 }
 
