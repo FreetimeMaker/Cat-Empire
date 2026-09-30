@@ -39,7 +39,13 @@ data class GameState(
         } else {
             ownedCats.sumOf { cat ->
                 val type = cats.firstOrNull { it.id == cat.typeId }
-                cat.production(type?.basePurrsPerSecond ?: 0.0)
+                val room = rooms.firstOrNull { it.id == cat.assignedRoomId && homeLevel >= it.requiredHomeLevel }
+                val assignmentBonus = when {
+                    room == null -> 1.0
+                    cat.personality in room.preferredPersonalities -> 1.35
+                    else -> 1.10
+                }
+                cat.production(type?.basePurrsPerSecond ?: 0.0) * assignmentBonus
             }
         }
 
