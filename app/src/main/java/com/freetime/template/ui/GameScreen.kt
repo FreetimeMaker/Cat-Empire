@@ -359,6 +359,8 @@ fun GameScreen(
                     onPlay = { viewModel.playWithCat(owned.id) },
                     onRest = { viewModel.letCatRest(owned.id) },
                     canFeed = state.purrs >= 25.0,
+                    rooms = state.rooms.filter { state.homeLevel >= it.requiredHomeLevel },
+                    onRoom = { roomId -> viewModel.assignCatToRoom(owned.id, roomId) },
                 )
             }
         }
@@ -429,6 +431,8 @@ private fun MyCatCard(
     onPlay: () -> Unit,
     onRest: () -> Unit,
     canFeed: Boolean,
+    rooms: List<com.freetime.template.game.CatRoom>,
+    onRoom: (String?) -> Unit,
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -464,6 +468,25 @@ private fun MyCatCard(
                 Button(onClick = onFeed, enabled = canFeed && cat.satiety < 100, modifier = Modifier.weight(1f)) { Text("Feed") }
                 Button(onClick = onPlay, enabled = cat.energy >= 10 && cat.happiness < 100, modifier = Modifier.weight(1f)) { Text("Play") }
                 Button(onClick = onRest, enabled = cat.energy < 100, modifier = Modifier.weight(1f)) { Text("Rest") }
+            }
+            val assignedRoom = rooms.firstOrNull { it.id == cat.assignedRoomId }
+            Text(
+                "Assignment: " + (assignedRoom?.let { it.icon + " " + it.name } ?: "Unassigned"),
+                fontWeight = FontWeight.SemiBold,
+            )
+            if (assignedRoom != null) {
+                val matched = cat.personality in assignedRoom.preferredPersonalities
+                Text(
+                    if (matched) "Perfect match: +35% production" else "Room bonus: +10% production",
+                    color = MaterialTheme.colorScheme.primary,
+                )
+                Button(onClick = { onRoom(null) }, modifier = Modifier.fillMaxWidth()) { Text("Leave room") }
+            }
+            rooms.filter { it.id != cat.assignedRoomId }.forEach { room ->
+                val matched = cat.personality in room.preferredPersonalities
+                Button(onClick = { onRoom(room.id) }, modifier = Modifier.fillMaxWidth()) {
+                    Text("Assign to " + room.icon + " " + room.name + if (matched) " (+35%)" else " (+10%)")
+                }
             }
             val equipped = collarById(cat.collarId)
             Text("Collar: " + equipped.icon + " " + equipped.name + " - x" + purrFormat.format(equipped.productionMultiplier))
