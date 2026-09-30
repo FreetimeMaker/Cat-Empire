@@ -355,6 +355,10 @@ fun GameScreen(
                     onSelect = { viewModel.selectCat(owned.id) },
                     lives = state.lives,
                     onCollar = { collarId -> viewModel.equipCollar(owned.id, collarId) },
+                    onFeed = { viewModel.feedCat(owned.id) },
+                    onPlay = { viewModel.playWithCat(owned.id) },
+                    onRest = { viewModel.letCatRest(owned.id) },
+                    canFeed = state.purrs >= 25.0,
                 )
             }
         }
@@ -421,6 +425,10 @@ private fun MyCatCard(
     onSelect: () -> Unit,
     lives: Int,
     onCollar: (String) -> Unit,
+    onFeed: () -> Unit,
+    onPlay: () -> Unit,
+    onRest: () -> Unit,
+    canFeed: Boolean,
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -436,6 +444,15 @@ private fun MyCatCard(
             Text(cat.activity.emoji + " " + cat.activity.label + " - x" + purrFormat.format(cat.activity.multiplier))
             Text("Bond Level " + cat.bondLevel + " - " + cat.bondProgress + " / 25 XP")
             Text("Bond production bonus: x" + purrFormat.format(cat.bondMultiplier))
+            Text("Happiness: " + cat.happiness + " / 100")
+            Text("Energy: " + cat.energy + " / 100")
+            Text("Fullness: " + cat.satiety + " / 100")
+            Text("Needs production: x" + purrFormat.format(cat.needsMultiplier))
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = onFeed, enabled = canFeed && cat.satiety < 100, modifier = Modifier.weight(1f)) { Text("Feed") }
+                Button(onClick = onPlay, enabled = cat.energy >= 10 && cat.happiness < 100, modifier = Modifier.weight(1f)) { Text("Play") }
+                Button(onClick = onRest, enabled = cat.energy < 100, modifier = Modifier.weight(1f)) { Text("Rest") }
+            }
             val equipped = collarById(cat.collarId)
             Text("Collar: " + equipped.icon + " " + equipped.name + " - x" + purrFormat.format(equipped.productionMultiplier))
             catCollars.filter { it.id != cat.collarId }.forEach { collar ->
