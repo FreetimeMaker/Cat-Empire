@@ -16,6 +16,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         startIdleLoop()
+        startActivityLoop()
         startAutoSave()
     }
 
@@ -114,6 +115,22 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                         purrs = current.purrs + earned,
                         totalPurrsEarned = current.totalPurrsEarned + earned,
                     )
+                }
+            }
+        }
+    }
+
+    private fun startActivityLoop() {
+        viewModelScope.launch {
+            var cycle = 0L
+            while (isActive) {
+                delay(15_000L)
+                cycle++
+                update { current ->
+                    current.copy(ownedCats = current.ownedCats.map { cat ->
+                        val list = CatActivity.entries
+                        cat.copy(activity = list[((cat.id + cycle) % list.size).toInt()])
+                    })
                 }
             }
         }
