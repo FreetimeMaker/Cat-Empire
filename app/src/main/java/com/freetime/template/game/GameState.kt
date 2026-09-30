@@ -21,6 +21,7 @@ data class GameState(
     val eventMultiplier: Double = 1.0,
     val eventSeconds: Int = 0,
     val lastMysteryReward: String? = null,
+    val lastEventResult: String? = null,
     val lastCatNapPurrs: Double = 0.0,
     val lastCatNapSeconds: Long = 0L,
 ) {
