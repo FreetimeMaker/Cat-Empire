@@ -1,4 +1,4 @@
-package com.freetime.template.ui
+package com.freetime.catempire.ui
 
 fun GameTab.showsHome() = this == GameTab.HOME
 fun GameTab.showsCats() = this == GameTab.CATS
