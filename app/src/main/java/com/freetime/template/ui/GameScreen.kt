@@ -19,6 +19,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -41,6 +44,7 @@ fun GameScreen(
     viewModel: GameViewModel = viewModel(),
 ) {
     val state by viewModel.state
+    var selectedTab by remember { mutableStateOf(GameTab.HOME) }
 
     state.activeEvent?.let { event ->
         AlertDialog(
@@ -79,9 +83,11 @@ fun GameScreen(
         )
     }
 
+    Column(modifier = modifier.fillMaxSize()) {
     Column(
-        modifier = modifier
-            .fillMaxSize()
+        modifier = Modifier
+            .weight(1f)
+            .fillMaxWidth()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 24.dp, vertical = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -291,6 +297,8 @@ fun GameScreen(
         }
 
         Spacer(Modifier.height(24.dp))
+    }
+    CatEmpireBottomBar(selected = selectedTab, onSelect = { selectedTab = it })
     }
 }
 
