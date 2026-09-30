@@ -136,6 +136,20 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         saves.save(_state.value)
     }
 
+    fun upgradeRoom(roomId: String) {
+        val current = _state.value
+        val room = current.rooms.firstOrNull { it.id == roomId } ?: return
+        if (current.homeLevel < room.requiredHomeLevel || current.purrs < room.nextCost) return
+        update {
+            it.copy(
+                purrs = it.purrs - room.nextCost,
+                rooms = it.rooms.map { item ->
+                    if (item.id == roomId) item.copy(level = item.level + 1) else item
+                },
+            )
+        }
+    }
+
     fun upgradeHome() {
         val current = _state.value
         if (current.homeLevel >= catHomes.lastIndex) return
