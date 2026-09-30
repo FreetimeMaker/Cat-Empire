@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
+import androidx.compose.material3.Surface
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -17,8 +19,15 @@ fun CatEmpireBottomBar(
     onSelect: (GameTab) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    Surface(
+        modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
+        shape = CircleShape,
+        tonalElevation = 8.dp,
+        shadowElevation = 8.dp,
+        color = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.92f),
+    ) {
     Row(
-        modifier = modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
+        modifier = Modifier.fillMaxWidth().padding(6.dp),
         horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         GameTab.entries.forEach { tab ->
@@ -31,5 +40,6 @@ fun CatEmpireBottomBar(
                 Text(tab.icon)
             }
         }
+    }
     }
 }
