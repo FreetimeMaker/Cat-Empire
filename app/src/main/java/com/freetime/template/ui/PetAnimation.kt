@@ -1,4 +1,4 @@
-package com.freetime.template.ui
+package com.freetime.catempire.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
