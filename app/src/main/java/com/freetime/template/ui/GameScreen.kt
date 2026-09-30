@@ -19,12 +19,14 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -38,6 +40,7 @@ import com.freetime.template.game.pawchievements
 import com.freetime.template.game.catCollars
 import com.freetime.template.game.collarById
 import java.text.DecimalFormat
+import kotlinx.coroutines.delay
 
 @Composable
 fun GameScreen(
@@ -46,6 +49,16 @@ fun GameScreen(
 ) {
     val state by viewModel.state
     var selectedTab by remember { mutableStateOf(GameTab.HOME) }
+    var petFeedback by remember { mutableStateOf(false) }
+    var petPulse by remember { mutableStateOf(false) }
+
+    LaunchedEffect(petFeedback) {
+        if (petFeedback) {
+            delay(450L)
+            petFeedback = false
+            petPulse = false
+        }
+    }
 
     state.activeEvent?.let { event ->
         AlertDialog(
@@ -131,9 +144,21 @@ fun GameScreen(
         }
 
         if (selectedTab.showsHome()) {
-        Text("🐱", style = MaterialTheme.typography.displayLarge)
+        Text(
+            "🐱",
+            modifier = Modifier.graphicsLayer {
+                scaleX = if (petPulse) 1.18f else 1f
+                scaleY = if (petPulse) 1.18f else 1f
+            },
+            style = MaterialTheme.typography.displayLarge,
+        )
+        PetFeedback(visible = petFeedback, amount = formatPurrs(state.purrsPerPet))
         Button(
-            onClick = viewModel::petCat,
+            onClick = {
+                viewModel.petCat()
+                petFeedback = true
+                petPulse = true
+            },
             modifier = Modifier.size(190.dp),
             shape = CircleShape,
         ) {
