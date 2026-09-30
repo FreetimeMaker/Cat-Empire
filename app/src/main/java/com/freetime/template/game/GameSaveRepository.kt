@@ -42,6 +42,7 @@ class GameSaveRepository(context: Context) {
             dailyStreak = prefs.getInt("daily_s", 0),
             lastDailyClaimAt = prefs.getLong("daily_t", 0L),
             upgrades = starterUpgrades().map { it.copy(level = prefs.getInt("upgrade_" + it.id, 0)) },
+            rooms = starterRooms().map { room -> room.copy(level = prefs.getInt("rm_" + room.id, 0)) },
             claimedPawchievements = prefs.getString("achievements", "").orEmpty().split(";").filter { it.isNotBlank() }.toSet(),
         )
         return SavedGame(state, prefs.getLong("savedAt", System.currentTimeMillis()))
