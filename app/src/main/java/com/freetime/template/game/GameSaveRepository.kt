@@ -12,6 +12,7 @@ class GameSaveRepository(context: Context) {
             .putString("totalPurrs", state.totalPurrsEarned.toString())
             .putLong("savedAt", System.currentTimeMillis())
             .putLong("selectedCatId", state.selectedCatId ?: -1L)
+            .putInt("homeLevel", state.homeLevel)
 
         state.cats.forEach { editor.putInt("cat_" + it.id, it.owned) }
         editor.putLong("ownedCatCount", state.ownedCats.size.toLong())
@@ -32,6 +33,7 @@ class GameSaveRepository(context: Context) {
             cats = starterCats().map { it.copy(owned = prefs.getInt("cat_" + it.id, 0)) },
             ownedCats = loadOwnedCats(),
             selectedCatId = prefs.getLong("selectedCatId", -1L).takeIf { it >= 0L },
+            homeLevel = prefs.getInt("homeLevel", 0),
             upgrades = starterUpgrades().map { it.copy(level = prefs.getInt("upgrade_" + it.id, 0)) },
             claimedPawchievements = prefs.getString("achievements", "").orEmpty().split(";").filter { it.isNotBlank() }.toSet(),
         )
