@@ -1,4 +1,4 @@
-package com.freetime.template.ui
+package com.freetime.catempire.ui
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
