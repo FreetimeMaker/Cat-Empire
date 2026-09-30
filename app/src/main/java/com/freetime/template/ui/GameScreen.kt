@@ -136,6 +136,7 @@ fun GameScreen(
             }
         }
         if (state.eventSeconds > 0) {
+            ZoomiesAnimation(active = state.eventMultiplier >= 3.0)
             Text(
                 "Event boost: x" + purrFormat.format(state.eventMultiplier) + " - " + state.eventSeconds + "s",
                 color = MaterialTheme.colorScheme.primary,
