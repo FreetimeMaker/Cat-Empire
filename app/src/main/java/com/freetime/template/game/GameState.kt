@@ -8,6 +8,7 @@ data class GameState(
     val ownedCats: List<OwnedCat> = emptyList(),
     val selectedCatId: Long? = null,
     val upgrades: List<CatUpgrade> = starterUpgrades(),
+    val claimedPawchievements: Set<String> = emptySet(),
     val lastCatNapPurrs: Double = 0.0,
     val lastCatNapSeconds: Long = 0L,
 ) {
