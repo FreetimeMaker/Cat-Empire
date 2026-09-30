@@ -1,4 +1,4 @@
-package com.freetime.template
+package com.freetime.catempire
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import com.freetime.design.AppTheme
 import com.freetime.design.ThemeMode
-import com.freetime.template.ui.GameScreen
+import com.freetime.catempire.ui.GameScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
