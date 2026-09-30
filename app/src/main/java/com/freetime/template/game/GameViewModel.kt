@@ -87,6 +87,14 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun upgradeHome() {
+        val current = _state.value
+        if (current.homeLevel >= catHomes.lastIndex) return
+        val cost = current.home.upgradeCost
+        if (current.purrs < cost) return
+        update { it.copy(purrs = it.purrs - cost, homeLevel = it.homeLevel + 1) }
+    }
+
     fun buyUpgrade(upgradeId: String) {
         val current = _state.value
         val upgrade = current.upgrades.firstOrNull { it.id == upgradeId } ?: return
