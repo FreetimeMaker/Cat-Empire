@@ -132,6 +132,24 @@ fun GameScreen(
             )
         }
 
+        Spacer(Modifier.height(4.dp))
+        Text("Catdex", modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        val discoveredTypes = state.ownedCats.map { it.typeId }.toSet()
+        val discoveredPersonalities = state.ownedCats.map { it.personality }.toSet()
+        val discoveredRarities = state.ownedCats.map { it.rarity }.toSet()
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Discoveries", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                Text("Cat types: " + discoveredTypes.size + " / " + state.cats.size)
+                Text("Personalities: " + discoveredPersonalities.size + " / 7")
+                Text("Rarities: " + discoveredRarities.size + " / 4")
+                state.cats.forEach { type ->
+                    val discovered = type.id in discoveredTypes || type.owned > 0
+                    Text(if (discovered) type.emoji + " " + type.name else "? Undiscovered cat")
+                }
+            }
+        }
+
         if (state.ownedCats.isNotEmpty()) {
             Spacer(Modifier.height(4.dp))
             Text("My Cats", modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
