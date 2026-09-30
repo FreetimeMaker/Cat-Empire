@@ -40,6 +40,7 @@ class GameSaveRepository(context: Context) {
             cats = starterCats().map { it.copy(owned = prefs.getInt("cat_" + it.id, 0)) },
             ownedCats = loadOwnedCats(),
             selectedCatId = prefs.getLong("selectedCatId", -1L).takeIf { it >= 0L },
+            discoveredCatTypes = prefs.getString("dex_t", "").orEmpty().split(";").filter(String::isNotBlank).toSet(),
             homeLevel = prefs.getInt("homeLevel", 0),
             lives = prefs.getInt("lives", 0),
             dailyStreak = prefs.getInt("daily_s", 0),
