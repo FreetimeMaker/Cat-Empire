@@ -13,6 +13,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -36,6 +37,30 @@ fun GameScreen(
     viewModel: GameViewModel = viewModel(),
 ) {
     val state by viewModel.state
+
+    if (state.lastCatNapPurrs > 0.0) {
+        AlertDialog(
+            onDismissRequest = viewModel::dismissCatNap,
+            title = { Text("💤 Cat Nap") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Your cats kept purring while you were away.")
+                    Text("Nap time: " + formatDuration(state.lastCatNapSeconds))
+                    Text(
+                        "♡ +" + formatPurrs(state.lastCatNapPurrs) + " Purrs",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text("Offline production is counted for up to 8 hours.")
+                }
+            },
+            confirmButton = {
+                Button(onClick = viewModel::dismissCatNap) {
+                    Text("Collect")
+                }
+            },
+        )
+    }
 
     Column(
         modifier = modifier
@@ -243,4 +268,15 @@ private fun formatPurrs(value: Double): String = when {
     value >= 1_000_000 -> purrFormat.format(value / 1_000_000) + "M"
     value >= 1_000 -> purrFormat.format(value / 1_000) + "K"
     else -> purrFormat.format(value)
+}
+
+
+private fun formatDuration(seconds: Long): String {
+    val hours = seconds / 3600
+    val minutes = (seconds % 3600) / 60
+    return when {
+        hours > 0 -> hours.toString() + "h " + minutes.toString() + "m"
+        minutes > 0 -> minutes.toString() + "m"
+        else -> seconds.toString() + "s"
+    }
 }
