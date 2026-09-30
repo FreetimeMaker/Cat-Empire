@@ -100,6 +100,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         if (roomId != null) {
             val room = current.rooms.firstOrNull { it.id == roomId } ?: return
             if (current.homeLevel < room.requiredHomeLevel) return
+            val occupants = current.ownedCats.count { it.assignedRoomId == roomId && it.id != catId }
+            if (occupants >= room.capacity) return
         }
         update { state ->
             state.copy(ownedCats = state.ownedCats.map { cat ->
