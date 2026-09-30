@@ -95,6 +95,7 @@ class GameSaveRepository(context: Context) {
                     happiness = parts.getOrNull(8)?.toIntOrNull() ?: 80,
                     energy = parts.getOrNull(9)?.toIntOrNull() ?: 80,
                     satiety = parts.getOrNull(10)?.toIntOrNull() ?: 80,
+                    assignedRoomId = parts.getOrNull(11)?.takeIf(String::isNotBlank),
                 )
             }.getOrNull()
         }
