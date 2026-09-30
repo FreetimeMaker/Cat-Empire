@@ -47,9 +47,51 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             totalPurrsEarned = current.totalPurrsEarned + current.purrsPerPet,
             selectedCatId = selectedId,
             ownedCats = current.ownedCats.map { cat ->
-                if (cat.id == selectedId) cat.copy(bondXp = cat.bondXp + 1L) else cat
+                if (cat.id == selectedId) cat.copy(
+                    bondXp = cat.bondXp + 1L,
+                    happiness = (cat.happiness + 2).coerceAtMost(100),
+                ) else cat
             },
         )
+    }
+
+    fun feedCat(catId: Long) {
+        val current = _state.value
+        val cost = 25.0
+        if (current.purrs < cost) return
+        update { state ->
+            state.copy(
+                purrs = state.purrs - cost,
+                ownedCats = state.ownedCats.map { cat ->
+                    if (cat.id == catId) cat.copy(
+                        satiety = (cat.satiety + 30).coerceAtMost(100),
+                        happiness = (cat.happiness + 5).coerceAtMost(100),
+                    ) else cat
+                },
+            )
+        }
+    }
+
+    fun playWithCat(catId: Long) {
+        update { state ->
+            state.copy(ownedCats = state.ownedCats.map { cat ->
+                if (cat.id == catId && cat.energy >= 10) cat.copy(
+                    happiness = (cat.happiness + 20).coerceAtMost(100),
+                    energy = (cat.energy - 10).coerceAtLeast(0),
+                ) else cat
+            })
+        }
+    }
+
+    fun letCatRest(catId: Long) {
+        update { state ->
+            state.copy(ownedCats = state.ownedCats.map { cat ->
+                if (cat.id == catId) cat.copy(
+                    energy = (cat.energy + 30).coerceAtMost(100),
+                    activity = CatActivity.SLEEPING,
+                ) else cat
+            })
+        }
     }
 
     fun equipCollar(catId: Long, collarId: String) {
@@ -210,7 +252,12 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 update { current ->
                     current.copy(ownedCats = current.ownedCats.map { cat ->
                         val list = CatActivity.entries
-                        cat.copy(activity = list[((cat.id + cycle) % list.size).toInt()])
+                        cat.copy(
+                            activity = list[((cat.id + cycle) % list.size).toInt()],
+                            satiety = (cat.satiety - 1).coerceAtLeast(0),
+                            energy = (cat.energy + if (cat.activity == CatActivity.SLEEPING) 4 else -1).coerceIn(0, 100),
+                            happiness = (cat.happiness - if (cat.satiety < 25 || cat.energy < 20) 2 else 0).coerceIn(0, 100),
+                        )
                     })
                 }
             }
