@@ -31,6 +31,8 @@ import com.freetime.template.game.UpgradeEffect
 import com.freetime.template.game.GameViewModel
 import com.freetime.template.game.OwnedCat
 import com.freetime.template.game.pawchievements
+import com.freetime.template.game.catCollars
+import com.freetime.template.game.collarById
 import java.text.DecimalFormat
 
 @Composable
@@ -240,6 +242,8 @@ fun GameScreen(
                     type = state.cats.firstOrNull { it.id == owned.typeId },
                     selected = owned.id == state.selectedCatId,
                     onSelect = { viewModel.selectCat(owned.id) },
+                    lives = state.lives,
+                    onCollar = { collarId -> viewModel.equipCollar(owned.id, collarId) },
                 )
             }
         }
@@ -296,6 +300,8 @@ private fun MyCatCard(
     type: CatType?,
     selected: Boolean,
     onSelect: () -> Unit,
+    lives: Int,
+    onCollar: (String) -> Unit,
 ) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -305,6 +311,14 @@ private fun MyCatCard(
             Text(cat.activity.emoji + " " + cat.activity.label + " - x" + purrFormat.format(cat.activity.multiplier))
             Text("Bond Level " + cat.bondLevel + " - " + cat.bondProgress + " / 25 XP")
             Text("Bond production bonus: x" + purrFormat.format(cat.bondMultiplier))
+            val equipped = collarById(cat.collarId)
+            Text("Collar: " + equipped.icon + " " + equipped.name + " - x" + purrFormat.format(equipped.productionMultiplier))
+            catCollars.filter { it.id != cat.collarId }.forEach { collar ->
+                val unlocked = cat.bondLevel >= collar.requiredBond && lives >= collar.requiredLives
+                Button(onClick = { onCollar(collar.id) }, enabled = unlocked, modifier = Modifier.fillMaxWidth()) {
+                    Text(if (unlocked) "Equip " + collar.icon + " " + collar.name else collar.name + " - Bond " + collar.requiredBond)
+                }
+            }
             Button(onClick = onSelect, enabled = !selected, modifier = Modifier.fillMaxWidth()) {
                 Text(if (selected) "Selected for pets" else "Choose for pets")
             }
