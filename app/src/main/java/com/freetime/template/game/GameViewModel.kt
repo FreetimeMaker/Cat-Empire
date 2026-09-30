@@ -74,6 +74,31 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun claimDailyReward() {
+        val current = _state.value
+        val now = System.currentTimeMillis()
+        val elapsed = now - current.lastDailyClaimAt
+        if (current.lastDailyClaimAt > 0L && elapsed < DAY_MS) return
+
+        val nextStreak = if (current.lastDailyClaimAt > 0L && elapsed <= STREAK_GRACE_MS) {
+            current.dailyStreak + 1
+        } else {
+            1
+        }
+        val cappedStreak = nextStreak.coerceAtMost(7)
+        val reward = (current.purrsPerSecond * (120.0 + cappedStreak * 60.0)).coerceAtLeast(250.0 * cappedStreak)
+
+        update {
+            it.copy(
+                purrs = it.purrs + reward,
+                totalPurrsEarned = it.totalPurrsEarned + reward,
+                dailyStreak = cappedStreak,
+                lastDailyClaimAt = now,
+            )
+        }
+        saves.save(_state.value)
+    }
+
     fun claimPawchievement(id: String) {
         val current = _state.value
         val achievement = pawchievements.firstOrNull { it.id == id } ?: return
@@ -215,5 +240,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     private companion object {
         const val MAX_OFFLINE_SECONDS = 8L * 60L * 60L
+        const val DAY_MS = 24L * 60L * 60L * 1000L
+        const val STREAK_GRACE_MS = 48L * 60L * 60L * 1000L
     }
 }
