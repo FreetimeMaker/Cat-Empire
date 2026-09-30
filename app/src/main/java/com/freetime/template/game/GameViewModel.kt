@@ -50,11 +50,13 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         val cat = current.cats.firstOrNull { it.id == catId } ?: return
         if (current.purrs < cat.nextCost) return
         update {
+            val sequence = (it.ownedCats.maxOfOrNull(OwnedCat::id) ?: 0L) + 1L
             it.copy(
                 purrs = it.purrs - cat.nextCost,
                 cats = it.cats.map { item ->
                     if (item.id == catId) item.copy(owned = item.owned + 1) else item
                 },
+                ownedCats = it.ownedCats + createAdoptedCat(catId, sequence),
             )
         }
     }
