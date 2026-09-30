@@ -24,6 +24,9 @@ class GameSaveRepository(context: Context) {
         }
         state.upgrades.forEach { editor.putInt("upgrade_" + it.id, it.level) }
         state.rooms.forEach { editor.putInt("rm_" + it.id, it.level) }
+        editor.putString("dex_t", state.discoveredCatTypes.joinToString(";"))
+        editor.putString("dex_p", state.discoveredPersonalities.joinToString(";") { it.name })
+        editor.putString("dex_r", state.discoveredRarities.joinToString(";") { it.name })
         editor.putString("achievements", state.claimedPawchievements.joinToString(";"))
         editor.apply()
     }
