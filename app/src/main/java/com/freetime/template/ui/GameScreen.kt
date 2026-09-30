@@ -51,6 +51,7 @@ fun GameScreen(
     var selectedTab by remember { mutableStateOf(GameTab.HOME) }
     var petFeedback by remember { mutableStateOf(false) }
     var petPulse by remember { mutableStateOf(false) }
+    var confirmNewLife by remember { mutableStateOf(false) }
 
     LaunchedEffect(petFeedback) {
         if (petFeedback) {
@@ -58,6 +59,23 @@ fun GameScreen(
             petFeedback = false
             petPulse = false
         }
+    }
+
+    if (confirmNewLife) {
+        AlertDialog(
+            onDismissRequest = { confirmNewLife = false },
+            title = { Text("Start a new life?") },
+            text = { Text("Your current cats, Purrs, home, rooms and upgrades reset. Catdex discoveries, achievements and all-time stats stay. You gain a permanent +25% production bonus.") },
+            confirmButton = {
+                Button(onClick = {
+                    viewModel.startNewLife()
+                    confirmNewLife = false
+                }) { Text("Start new life") }
+            },
+            dismissButton = {
+                Button(onClick = { confirmNewLife = false }) { Text("Cancel") }
+            },
+        )
     }
 
     state.activeEvent?.let { event ->
@@ -228,7 +246,7 @@ fun GameScreen(
                 Text("Lives: " + state.lives, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                 Text("Permanent production: x" + purrFormat.format(state.prestigeMultiplier))
                 Text("Each new life permanently adds 25% production.")
-                Button(onClick = viewModel::startNewLife, enabled = state.homeLevel >= 5, modifier = Modifier.fillMaxWidth()) {
+                Button(onClick = { confirmNewLife = true }, enabled = state.homeLevel >= 5, modifier = Modifier.fillMaxWidth()) {
                     Text(if (state.homeLevel >= 5) "Start a new life" else "Reach Cat Sanctuary to unlock")
                 }
             }
@@ -313,9 +331,9 @@ fun GameScreen(
         if (selectedTab.showsCatdex()) {
         Spacer(Modifier.height(4.dp))
         Text("Catdex", modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-        val discoveredTypes = state.ownedCats.map { it.typeId }.toSet()
-        val discoveredPersonalities = state.ownedCats.map { it.personality }.toSet()
-        val discoveredRarities = state.ownedCats.map { it.rarity }.toSet()
+        val discoveredTypes = state.discoveredCatTypes + state.ownedCats.map { it.typeId }
+        val discoveredPersonalities = state.discoveredPersonalities + state.ownedCats.map { it.personality }
+        val discoveredRarities = state.discoveredRarities + state.ownedCats.map { it.rarity }
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Discoveries", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
