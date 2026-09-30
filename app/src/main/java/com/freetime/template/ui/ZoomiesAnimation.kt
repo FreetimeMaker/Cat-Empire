@@ -1,4 +1,4 @@
-package com.freetime.template.ui
+package com.freetime.catempire.ui
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
