@@ -1,4 +1,4 @@
-package com.freetime.template.game
+package com.freetime.catempire.game
 
 import android.app.Application
 import androidx.compose.runtime.State
