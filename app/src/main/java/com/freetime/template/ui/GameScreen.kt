@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
@@ -22,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.freetime.template.game.CatType
 import com.freetime.template.game.GameViewModel
 import java.text.DecimalFormat
 
@@ -33,8 +36,12 @@ fun GameScreen(
     val state by viewModel.state
 
     Column(
-        modifier = modifier.fillMaxSize().padding(horizontal = 24.dp, vertical = 20.dp),
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 24.dp, vertical = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text("Cat Empire", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)
         Text(
@@ -43,7 +50,6 @@ fun GameScreen(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
         )
-        Spacer(Modifier.height(28.dp))
         Text(
             "♡ " + formatPurrs(state.purrs) + " Purrs",
             style = MaterialTheme.typography.displaySmall,
@@ -53,12 +59,11 @@ fun GameScreen(
             formatPurrs(state.purrsPerSecond) + " Purrs / second",
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        Spacer(Modifier.weight(1f))
+
         Text("🐱", style = MaterialTheme.typography.displayLarge)
-        Spacer(Modifier.height(16.dp))
         Button(
             onClick = viewModel::petCat,
-            modifier = Modifier.size(190.dp),
+            modifier = Modifier.size(180.dp),
             shape = CircleShape,
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -66,14 +71,88 @@ fun GameScreen(
                 Text("+" + formatPurrs(state.purrsPerPet) + " Purr")
             }
         }
-        Spacer(Modifier.weight(1f))
+
         Card(modifier = Modifier.fillMaxWidth()) {
             Row(
                 modifier = Modifier.fillMaxWidth().padding(18.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly,
             ) {
                 Stat("Pets", state.totalPets.toString())
+                Stat("Cats", state.totalCats.toString())
                 Stat("All-time Purrs", formatPurrs(state.totalPurrsEarned))
+            }
+        }
+
+        Spacer(Modifier.height(4.dp))
+        Text(
+            "Adoption Center",
+            modifier = Modifier.fillMaxWidth(),
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+        )
+        Text(
+            "Give cats a home. Every adopted cat produces Purrs automatically.",
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+
+        state.cats.forEach { cat ->
+            CatAdoptionCard(
+                cat = cat,
+                canAfford = state.purrs >= cat.nextCost,
+                onAdopt = { viewModel.adoptCat(cat.id) },
+            )
+        }
+
+        Spacer(Modifier.height(24.dp))
+    }
+}
+
+@Composable
+private fun CatAdoptionCard(
+    cat: CatType,
+    canAfford: Boolean,
+    onAdopt: () -> Unit,
+) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier.padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(cat.emoji, style = MaterialTheme.typography.headlineLarge)
+                    Column {
+                        Text(cat.name, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                        Text("Adopted: " + cat.owned)
+                    }
+                }
+                Text(
+                    formatPurrs(cat.production) + "/s",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
+
+            Text(cat.description, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(
+                "Each cat: +" + formatPurrs(cat.basePurrsPerSecond) + " Purrs/s",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+
+            Button(
+                onClick = onAdopt,
+                enabled = canAfford,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("Adopt for ♡ " + formatPurrs(cat.nextCost))
             }
         }
     }
