@@ -250,6 +250,31 @@ fun GameScreen(
             }
         }
 
+        Spacer(Modifier.height(4.dp))
+        Text("Rooms", modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        state.rooms.forEach { room ->
+            val unlocked = state.homeLevel >= room.requiredHomeLevel
+            Card(modifier = Modifier.fillMaxWidth(), shape = MaterialTheme.shapes.extraLarge) {
+                Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(room.icon + " " + room.name + " · Level " + room.level, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                    Text(room.description, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(
+                        when (room.effect) {
+                            com.freetime.template.game.RoomEffect.PET_POWER -> "Pet power: x" + purrFormat.format(room.multiplier)
+                            com.freetime.template.game.RoomEffect.CAT_PRODUCTION -> "Cat production: x" + purrFormat.format(room.multiplier)
+                        }
+                    )
+                    Button(
+                        onClick = { viewModel.upgradeRoom(room.id) },
+                        enabled = unlocked && state.purrs >= room.nextCost,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(if (unlocked) "Upgrade for " + formatPurrs(room.nextCost) + " Purrs" else "Unlock with home level " + room.requiredHomeLevel)
+                    }
+                }
+            }
+        }
+
         }
 
         if (selectedTab.showsCats()) {
