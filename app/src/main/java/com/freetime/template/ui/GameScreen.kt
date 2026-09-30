@@ -226,6 +226,7 @@ private fun MyCatCard(
             Text((type?.emoji ?: "Cat") + " " + cat.name, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
             Text((type?.name ?: "Cat") + " - " + cat.personality.label)
             Text(cat.rarity.label + " - " + formatPurrs(cat.production(type?.basePurrsPerSecond ?: 0.0)) + " Purrs/s", color = MaterialTheme.colorScheme.primary)
+            Text(cat.activity.emoji + " " + cat.activity.label + " - x" + purrFormat.format(cat.activity.multiplier))
             Text("Bond Level " + cat.bondLevel + " - " + cat.bondProgress + " / 25 XP")
             Text("Bond production bonus: x" + purrFormat.format(cat.bondMultiplier))
             Button(onClick = onSelect, enabled = !selected, modifier = Modifier.fillMaxWidth()) {
