@@ -279,6 +279,9 @@ fun GameScreen(
                 Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(room.icon + " " + room.name + " · Level " + room.level, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                     Text(room.description, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    val occupants = state.ownedCats.count { it.assignedRoomId == room.id }
+                    Text("Cats: " + occupants + " / " + room.capacity)
+                    Text("Next room level adds another cat slot.", color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text(
                         when (room.effect) {
                             com.freetime.catempire.game.RoomEffect.PET_POWER -> "Pet power: x" + purrFormat.format(room.multiplier)
@@ -360,6 +363,7 @@ fun GameScreen(
                     onRest = { viewModel.letCatRest(owned.id) },
                     canFeed = state.purrs >= 25.0,
                     rooms = state.rooms.filter { state.homeLevel >= it.requiredHomeLevel },
+                    roomOccupancy = state.ownedCats.groupingBy { it.assignedRoomId }.eachCount(),
                     onRoom = { roomId -> viewModel.assignCatToRoom(owned.id, roomId) },
                 )
             }
@@ -432,6 +436,7 @@ private fun MyCatCard(
     onRest: () -> Unit,
     canFeed: Boolean,
     rooms: List<com.freetime.catempire.game.CatRoom>,
+    roomOccupancy: Map<String?, Int>,
     onRoom: (String?) -> Unit,
 ) {
     Card(
@@ -484,8 +489,14 @@ private fun MyCatCard(
             }
             rooms.filter { it.id != cat.assignedRoomId }.forEach { room ->
                 val matched = cat.personality in room.preferredPersonalities
-                Button(onClick = { onRoom(room.id) }, modifier = Modifier.fillMaxWidth()) {
-                    Text("Assign to " + room.icon + " " + room.name + if (matched) " (+35%)" else " (+10%)")
+                val occupants = roomOccupancy[room.id] ?: 0
+                val full = occupants >= room.capacity
+                Button(onClick = { onRoom(room.id) }, enabled = !full, modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        if (full) room.icon + " " + room.name + " (Full " + occupants + "/" + room.capacity + ")"
+                        else "Assign to " + room.icon + " " + room.name + " (" + occupants + "/" + room.capacity + ")" +
+                            if (matched) " +35%" else " +10%"
+                    )
                 }
             }
             val equipped = collarById(cat.collarId)
