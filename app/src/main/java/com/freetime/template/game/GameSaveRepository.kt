@@ -23,6 +23,7 @@ class GameSaveRepository(context: Context) {
             editor.putString("ownedCat_" + index, listOf(cat.id, cat.typeId, cat.name, cat.personality.name, cat.rarity.name, cat.bondXp, cat.activity.name, cat.collarId).joinToString("|"))
         }
         state.upgrades.forEach { editor.putInt("upgrade_" + it.id, it.level) }
+        state.rooms.forEach { editor.putInt("rm_" + it.id, it.level) }
         editor.putString("achievements", state.claimedPawchievements.joinToString(";"))
         editor.apply()
     }
