@@ -49,6 +49,7 @@ data class OwnedCat(
     val happiness: Int = 80,
     val energy: Int = 80,
     val satiety: Int = 80,
+    val assignedRoomId: String? = null,
 ) {
     val bondLevel: Int
         get() = ((bondXp / 25L).toInt() + 1).coerceIn(1, 100)
