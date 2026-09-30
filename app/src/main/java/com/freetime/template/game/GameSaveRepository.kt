@@ -35,6 +35,7 @@ class GameSaveRepository(context: Context) {
             ownedCats = loadOwnedCats(),
             selectedCatId = prefs.getLong("selectedCatId", -1L).takeIf { it >= 0L },
             homeLevel = prefs.getInt("homeLevel", 0),
+            lives = prefs.getInt("lives", 0),
             upgrades = starterUpgrades().map { it.copy(level = prefs.getInt("upgrade_" + it.id, 0)) },
             claimedPawchievements = prefs.getString("achievements", "").orEmpty().split(";").filter { it.isNotBlank() }.toSet(),
         )
