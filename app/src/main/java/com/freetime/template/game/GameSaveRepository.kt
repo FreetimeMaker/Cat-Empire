@@ -33,12 +33,15 @@ class GameSaveRepository(context: Context) {
 
     fun load(): SavedGame? {
         if (!prefs.contains("savedAt")) return null
+        val restoredTypes = starterCats().map { it.copy(owned = prefs.getInt("cat_" + it.id, 0)) }
+        val storedCats = loadOwnedCats()
+        val migratedCats = if (storedCats.isEmpty()) migrateLegacyCats(restoredTypes) else storedCats
         val state = GameState(
             purrs = prefs.getString("purrs", "0")?.toDoubleOrNull() ?: 0.0,
             totalPets = prefs.getLong("totalPets", 0L),
             totalPurrsEarned = prefs.getString("totalPurrs", "0")?.toDoubleOrNull() ?: 0.0,
-            cats = starterCats().map { it.copy(owned = prefs.getInt("cat_" + it.id, 0)) },
-            ownedCats = loadOwnedCats(),
+            cats = restoredTypes,
+            ownedCats = migratedCats,
             selectedCatId = prefs.getLong("selectedCatId", -1L).takeIf { it >= 0L },
             discoveredCatTypes = prefs.getString("dex_t", "").orEmpty().split(";").filter(String::isNotBlank).toSet(),
             discoveredPersonalities = parsePersonalities(prefs.getString("dex_p", "").orEmpty()),
@@ -52,6 +55,18 @@ class GameSaveRepository(context: Context) {
             claimedPawchievements = prefs.getString("achievements", "").orEmpty().split(";").filter { it.isNotBlank() }.toSet(),
         )
         return SavedGame(state, prefs.getLong("savedAt", System.currentTimeMillis()))
+    }
+
+    private fun migrateLegacyCats(types: List<CatType>): List<OwnedCat> {
+        var id = 1L
+        return buildList {
+            types.forEach { type ->
+                repeat(type.owned) {
+                    add(createAdoptedCat(type.id, id))
+                    id++
+                }
+            }
+        }
     }
 
     private fun parsePersonalities(value: String) = value.split(";").mapNotNull { name ->
