@@ -14,6 +14,7 @@ class GameSaveRepository(context: Context) {
             .putLong("selectedCatId", state.selectedCatId ?: -1L)
             .putInt("homeLevel", state.homeLevel)
             .putInt("lives", state.lives)
+            .putInt("daily_s", state.dailyStreak)
 
         state.cats.forEach { editor.putInt("cat_" + it.id, it.owned) }
         editor.putLong("ownedCatCount", state.ownedCats.size.toLong())
