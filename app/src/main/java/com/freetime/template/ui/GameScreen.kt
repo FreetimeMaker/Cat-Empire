@@ -30,6 +30,7 @@ import com.freetime.template.game.CatUpgrade
 import com.freetime.template.game.UpgradeEffect
 import com.freetime.template.game.GameViewModel
 import com.freetime.template.game.OwnedCat
+import com.freetime.template.game.pawchievements
 import java.text.DecimalFormat
 
 @Composable
@@ -164,6 +165,27 @@ fun GameScreen(
                     selected = owned.id == state.selectedCatId,
                     onSelect = { viewModel.selectCat(owned.id) },
                 )
+            }
+        }
+
+        Spacer(Modifier.height(4.dp))
+        Text("Pawchievements", modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        pawchievements.forEach { achievement ->
+            val unlocked = achievement.unlocked(state)
+            val claimed = achievement.id in state.claimedPawchievements
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(achievement.emoji + " " + achievement.name, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                    Text(achievement.description, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("Reward: " + formatPurrs(achievement.reward) + " Purrs")
+                    Button(
+                        onClick = { viewModel.claimPawchievement(achievement.id) },
+                        enabled = unlocked && !claimed,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(if (claimed) "Claimed" else if (unlocked) "Claim reward" else "Locked")
+                    }
+                }
             }
         }
 
