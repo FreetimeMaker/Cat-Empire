@@ -39,7 +39,7 @@ data class OwnedCat(
     val activity: CatActivity = CatActivity.SLEEPING,
 ) {
     val bondLevel: Int
-        get() = (bondXp / 25L).toInt().coerceIn(0, 100) + 1
+        get() = ((bondXp / 25L).toInt() + 1).coerceIn(1, 100)
 
     val bondProgress: Int
         get() = (bondXp % 25L).toInt()
