@@ -1,4 +1,4 @@
-package com.freetime.template.ui.theme
+package com.freetime.catempire.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
