@@ -38,11 +38,21 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun petCat() = update { current ->
+        val selectedId = current.selectedCatId ?: current.ownedCats.firstOrNull()?.id
         current.copy(
             purrs = current.purrs + current.purrsPerPet,
             totalPets = current.totalPets + 1,
             totalPurrsEarned = current.totalPurrsEarned + current.purrsPerPet,
+            selectedCatId = selectedId,
+            ownedCats = current.ownedCats.map { cat ->
+                if (cat.id == selectedId) cat.copy(bondXp = cat.bondXp + 1L) else cat
+            },
         )
+    }
+
+    fun selectCat(catId: Long) {
+        if (_state.value.ownedCats.none { it.id == catId }) return
+        update { it.copy(selectedCatId = catId) }
     }
 
     fun adoptCat(catId: String) {
@@ -57,6 +67,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                     if (item.id == catId) item.copy(owned = item.owned + 1) else item
                 },
                 ownedCats = it.ownedCats + createAdoptedCat(catId, sequence),
+                selectedCatId = it.selectedCatId ?: sequence,
             )
         }
     }
