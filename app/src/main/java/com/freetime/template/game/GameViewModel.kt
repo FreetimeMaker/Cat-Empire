@@ -94,6 +94,20 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun assignCatToRoom(catId: Long, roomId: String?) {
+        val current = _state.value
+        if (current.ownedCats.none { it.id == catId }) return
+        if (roomId != null) {
+            val room = current.rooms.firstOrNull { it.id == roomId } ?: return
+            if (current.homeLevel < room.requiredHomeLevel) return
+        }
+        update { state ->
+            state.copy(ownedCats = state.ownedCats.map { cat ->
+                if (cat.id == catId) cat.copy(assignedRoomId = roomId) else cat
+            })
+        }
+    }
+
     fun equipCollar(catId: Long, collarId: String) {
         val current = _state.value
         val cat = current.ownedCats.firstOrNull { it.id == catId } ?: return
