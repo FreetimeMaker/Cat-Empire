@@ -8,6 +8,7 @@ data class GameState(
     val ownedCats: List<OwnedCat> = emptyList(),
     val selectedCatId: Long? = null,
     val upgrades: List<CatUpgrade> = starterUpgrades(),
+    val rooms: List<CatRoom> = starterRooms(),
     val homeLevel: Int = 0,
     val lives: Int = 0,
     val claimedPawchievements: Set<String> = emptySet(),
@@ -20,10 +21,12 @@ data class GameState(
     val lastCatNapSeconds: Long = 0L,
 ) {
     val purrsPerPet: Double
-        get() = 1.0 + upgrades.filter { it.effect == UpgradeEffect.PET_POWER }.sumOf(CatUpgrade::totalBonus)
+        get() = (1.0 + upgrades.filter { it.effect == UpgradeEffect.PET_POWER }.sumOf(CatUpgrade::totalBonus)) *
+            rooms.filter { it.effect == RoomEffect.PET_POWER }.fold(1.0) { total, room -> total * room.multiplier }
 
     val catProductionMultiplier: Double
-        get() = 1.0 + upgrades.filter { it.effect == UpgradeEffect.CAT_PRODUCTION }.sumOf(CatUpgrade::totalBonus)
+        get() = (1.0 + upgrades.filter { it.effect == UpgradeEffect.CAT_PRODUCTION }.sumOf(CatUpgrade::totalBonus)) *
+            rooms.filter { it.effect == RoomEffect.CAT_PRODUCTION }.fold(1.0) { total, room -> total * room.multiplier }
 
     val basePurrsPerSecond: Double
         get() = if (ownedCats.isEmpty()) {
