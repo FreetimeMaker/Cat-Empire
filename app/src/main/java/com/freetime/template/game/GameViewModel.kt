@@ -52,6 +52,18 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         )
     }
 
+    fun equipCollar(catId: Long, collarId: String) {
+        val current = _state.value
+        val cat = current.ownedCats.firstOrNull { it.id == catId } ?: return
+        val collar = catCollars.firstOrNull { it.id == collarId } ?: return
+        if (cat.bondLevel < collar.requiredBond || current.lives < collar.requiredLives) return
+        update { state ->
+            state.copy(ownedCats = state.ownedCats.map {
+                if (it.id == catId) it.copy(collarId = collarId) else it
+            })
+        }
+    }
+
     fun selectCat(catId: Long) {
         if (_state.value.ownedCats.none { it.id == catId }) return
         update { it.copy(selectedCatId = catId) }
