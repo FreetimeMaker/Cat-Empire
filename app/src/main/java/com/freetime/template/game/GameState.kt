@@ -32,7 +32,7 @@ data class GameState(
         }
 
     val purrsPerSecond: Double
-        get() = basePurrsPerSecond * catProductionMultiplier
+        get() = basePurrsPerSecond * catProductionMultiplier * eventMultiplier
 
     val totalCats: Int
         get() = if (ownedCats.isEmpty()) cats.sumOf(CatType::owned) else ownedCats.size
