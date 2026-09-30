@@ -37,6 +37,20 @@ class GameViewModel : ViewModel() {
         )
     }
 
+    fun buyUpgrade(upgradeId: String) {
+        val current = _state.value
+        val upgrade = current.upgrades.firstOrNull { it.id == upgradeId } ?: return
+        val cost = upgrade.nextCost
+        if (current.purrs < cost) return
+
+        _state.value = current.copy(
+            purrs = current.purrs - cost,
+            upgrades = current.upgrades.map {
+                if (it.id == upgradeId) it.copy(level = it.level + 1) else it
+            },
+        )
+    }
+
     private fun startIdleLoop() {
         viewModelScope.launch {
             while (isActive) {
