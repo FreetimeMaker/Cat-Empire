@@ -8,6 +8,7 @@ data class GameState(
     val ownedCats: List<OwnedCat> = emptyList(),
     val selectedCatId: Long? = null,
     val upgrades: List<CatUpgrade> = starterUpgrades(),
+    val homeLevel: Int = 0,
     val claimedPawchievements: Set<String> = emptySet(),
     val activeEvent: CatEvent? = null,
     val eventMultiplier: Double = 1.0,
@@ -31,8 +32,11 @@ data class GameState(
             }
         }
 
+    val home: CatHome
+        get() = catHomes[homeLevel.coerceIn(0, catHomes.lastIndex)]
+
     val purrsPerSecond: Double
-        get() = basePurrsPerSecond * catProductionMultiplier * eventMultiplier
+        get() = basePurrsPerSecond * catProductionMultiplier * eventMultiplier * home.productionMultiplier
 
     val totalCats: Int
         get() = if (ownedCats.isEmpty()) cats.sumOf(CatType::owned) else ownedCats.size
