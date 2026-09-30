@@ -95,7 +95,10 @@ fun GameScreen(
             shape = CircleShape,
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("Pet the cat", style = MaterialTheme.typography.titleLarge)
+                Text(
+                    state.ownedCats.firstOrNull { it.id == state.selectedCatId }?.let { "Pet " + it.name } ?: "Pet the cat",
+                    style = MaterialTheme.typography.titleLarge,
+                )
                 Text("+" + formatPurrs(state.purrsPerPet) + " Purr")
             }
         }
@@ -155,7 +158,12 @@ fun GameScreen(
             Text("My Cats", modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
             Text("Every cat has its own name, personality and rarity.", modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.onSurfaceVariant)
             state.ownedCats.asReversed().forEach { owned ->
-                MyCatCard(owned, state.cats.firstOrNull { it.id == owned.typeId })
+                MyCatCard(
+                    cat = owned,
+                    type = state.cats.firstOrNull { it.id == owned.typeId },
+                    selected = owned.id == state.selectedCatId,
+                    onSelect = { viewModel.selectCat(owned.id) },
+                )
             }
         }
 
@@ -185,12 +193,22 @@ fun GameScreen(
 }
 
 @Composable
-private fun MyCatCard(cat: OwnedCat, type: CatType?) {
+private fun MyCatCard(
+    cat: OwnedCat,
+    type: CatType?,
+    selected: Boolean,
+    onSelect: () -> Unit,
+) {
     Card(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text((type?.emoji ?: "Cat") + " " + cat.name, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
             Text((type?.name ?: "Cat") + " - " + cat.personality.label)
             Text(cat.rarity.label + " - " + formatPurrs(cat.production(type?.basePurrsPerSecond ?: 0.0)) + " Purrs/s", color = MaterialTheme.colorScheme.primary)
+            Text("Bond Level " + cat.bondLevel + " - " + cat.bondProgress + " / 25 XP")
+            Text("Bond production bonus: x" + purrFormat.format(cat.bondMultiplier))
+            Button(onClick = onSelect, enabled = !selected, modifier = Modifier.fillMaxWidth()) {
+                Text(if (selected) "Selected for pets" else "Choose for pets")
+            }
         }
     }
 }
