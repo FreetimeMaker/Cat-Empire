@@ -212,10 +212,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         val event = _state.value.activeEvent ?: return
         update { current ->
             when (event.type) {
-                CatEventType.MYSTERY_BOX -> {
-                    val reward = (current.purrsPerSecond * 60.0).coerceAtLeast(100.0)
-                    current.copy(purrs = current.purrs + reward, totalPurrsEarned = current.totalPurrsEarned + reward, activeEvent = null)
-                }
+                CatEventType.MYSTERY_BOX -> resolveMysteryBox(current)
                 CatEventType.CATNIP -> current.copy(activeEvent = null, eventMultiplier = 2.0, eventSeconds = 60)
                 CatEventType.ZOOMIES -> current.copy(activeEvent = null, eventMultiplier = 3.0, eventSeconds = 15)
                 CatEventType.TOILET_PAPER -> current.copy(activeEvent = null)
@@ -229,6 +226,66 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                         selectedCatId = current.selectedCatId ?: id,
                     )
                 }
+            }
+        }
+    }
+
+    fun dismissMysteryReward() {
+        update { it.copy(lastMysteryReward = null) }
+    }
+
+    private fun resolveMysteryBox(current: GameState): GameState {
+        val reward = mysteryRewardFor(current.totalPets + current.totalCats + current.homeLevel + current.lives)
+        val message = reward.title + ": " + reward.description
+        return when (reward.type) {
+            MysteryRewardType.PURRS -> {
+                val amount = (current.purrsPerSecond * 180.0).coerceAtLeast(500.0)
+                current.copy(
+                    purrs = current.purrs + amount,
+                    totalPurrsEarned = current.totalPurrsEarned + amount,
+                    activeEvent = null,
+                    lastMysteryReward = message + " +" + amount.toLong() + " Purrs",
+                )
+            }
+            MysteryRewardType.CATNIP -> current.copy(activeEvent = null, eventMultiplier = 2.5, eventSeconds = 90, lastMysteryReward = message)
+            MysteryRewardType.TOY_UPGRADE -> {
+                val target = current.upgrades.minByOrNull { it.level }
+                current.copy(
+                    activeEvent = null,
+                    upgrades = current.upgrades.map { if (it.id == target?.id) it.copy(level = it.level + 1) else it },
+                    lastMysteryReward = message,
+                )
+            }
+            MysteryRewardType.ROOM_UPGRADE -> {
+                val target = current.rooms.filter { current.homeLevel >= it.requiredHomeLevel }.minByOrNull { it.level }
+                current.copy(
+                    activeEvent = null,
+                    rooms = current.rooms.map { if (it.id == target?.id) it.copy(level = it.level + 1) else it },
+                    lastMysteryReward = message,
+                )
+            }
+            MysteryRewardType.COLLAR -> {
+                val selected = current.selectedCatId
+                val collar = catCollars.filter { it.id != "none" }.firstOrNull {
+                    current.lives >= it.requiredLives && current.ownedCats.firstOrNull { cat -> cat.id == selected }?.bondLevel ?: 0 >= it.requiredBond
+                }
+                current.copy(
+                    activeEvent = null,
+                    ownedCats = current.ownedCats.map { if (it.id == selected && collar != null) it.copy(collarId = collar.id) else it },
+                    lastMysteryReward = if (collar != null) message + " " + collar.name else "The box contained a collar, but none fit yet.",
+                )
+            }
+            MysteryRewardType.RARE_CAT -> {
+                val type = current.cats.last()
+                val id = (current.ownedCats.maxOfOrNull(OwnedCat::id) ?: 0L) + 1L
+                val cat = createAdoptedCat(type.id, id).copy(rarity = CatRarity.RARE)
+                current.copy(
+                    activeEvent = null,
+                    cats = current.cats.map { if (it.id == type.id) it.copy(owned = it.owned + 1) else it },
+                    ownedCats = current.ownedCats + cat,
+                    selectedCatId = current.selectedCatId ?: id,
+                    lastMysteryReward = message + " " + cat.name + " joined your empire.",
+                )
             }
         }
     }
