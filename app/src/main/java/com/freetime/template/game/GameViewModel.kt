@@ -224,19 +224,32 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 CatEventType.MYSTERY_BOX -> resolveMysteryBox(current)
                 CatEventType.CATNIP -> current.copy(activeEvent = null, eventMultiplier = 2.0, eventSeconds = 60)
                 CatEventType.ZOOMIES -> current.copy(activeEvent = null, eventMultiplier = 3.0, eventSeconds = 15)
-                CatEventType.TOILET_PAPER -> current.copy(activeEvent = null)
+                CatEventType.TOILET_PAPER -> {
+                    val cleanup = (current.purrsPerSecond * 30.0).coerceAtLeast(50.0)
+                    current.copy(
+                        activeEvent = null,
+                        purrs = (current.purrs - cleanup).coerceAtLeast(0.0),
+                        lastEventResult = "The cats destroyed the toilet paper. Cleanup cost " + cleanup.toLong() + " Purrs.",
+                    )
+                }
                 CatEventType.STRAY -> {
-                    val type = current.cats.first()
+                    val type = current.cats.random()
                     val id = (current.ownedCats.maxOfOrNull(OwnedCat::id) ?: 0L) + 1L
+                    val stray = createAdoptedCat(type.id, id)
                     current.copy(
                         activeEvent = null,
                         cats = current.cats.map { if (it.id == type.id) it.copy(owned = it.owned + 1) else it },
-                        ownedCats = current.ownedCats + createAdoptedCat(type.id, id),
+                        ownedCats = current.ownedCats + stray,
                         selectedCatId = current.selectedCatId ?: id,
+                        lastEventResult = type.name + " " + stray.name + " joined your empire as a " + stray.rarity.label + " cat.",
                     )
                 }
             }
         }
+    }
+
+    fun dismissEventResult() {
+        update { it.copy(lastEventResult = null) }
     }
 
     fun dismissMysteryReward() {
@@ -309,7 +322,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                     if (current.eventSeconds > 1) current.copy(eventSeconds = current.eventSeconds - 1)
                     else if (current.eventSeconds == 1) current.copy(eventSeconds = 0, eventMultiplier = 1.0)
                     else if (cycle % 45 == 0 && current.activeEvent == null && current.ownedCats.isNotEmpty()) {
-                        current.copy(activeEvent = catEvents[(cycle / 45) % catEvents.size])
+                        current.copy(activeEvent = catEvents.random())
                     } else current
                 }
             }
