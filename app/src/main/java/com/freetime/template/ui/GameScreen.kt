@@ -15,6 +15,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -100,15 +101,27 @@ fun GameScreen(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
         )
-        Text(
-            "♡ " + formatPurrs(state.purrs) + " Purrs",
-            style = MaterialTheme.typography.displaySmall,
-            fontWeight = FontWeight.Bold,
-        )
-        Text(
-            formatPurrs(state.purrsPerSecond) + " Purrs / second",
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.extraLarge,
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(22.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Text(
+                    "♡ " + formatPurrs(state.purrs) + " Purrs",
+                    style = MaterialTheme.typography.displaySmall,
+                    fontWeight = FontWeight.Bold,
+                )
+                Text(
+                    formatPurrs(state.purrsPerSecond) + " Purrs / second",
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                )
+            }
+        }
         if (state.eventSeconds > 0) {
             Text(
                 "Event boost: x" + purrFormat.format(state.eventMultiplier) + " - " + state.eventSeconds + "s",
@@ -121,7 +134,7 @@ fun GameScreen(
         Text("🐱", style = MaterialTheme.typography.displayLarge)
         Button(
             onClick = viewModel::petCat,
-            modifier = Modifier.size(180.dp),
+            modifier = Modifier.size(190.dp),
             shape = CircleShape,
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
