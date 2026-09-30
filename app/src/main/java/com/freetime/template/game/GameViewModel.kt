@@ -69,6 +69,12 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         update { it.copy(selectedCatId = catId) }
     }
 
+    private fun withDiscoveries(state: GameState): GameState = state.copy(
+        discoveredCatTypes = state.discoveredCatTypes + state.ownedCats.map { it.typeId },
+        discoveredPersonalities = state.discoveredPersonalities + state.ownedCats.map { it.personality },
+        discoveredRarities = state.discoveredRarities + state.ownedCats.map { it.rarity },
+    )
+
     fun adoptCat(catId: String) {
         val current = _state.value
         val cat = current.cats.firstOrNull { it.id == catId } ?: return
@@ -132,6 +138,9 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             totalPets = current.totalPets,
             totalPurrsEarned = current.totalPurrsEarned,
             claimedPawchievements = current.claimedPawchievements,
+            discoveredCatTypes = current.discoveredCatTypes + current.ownedCats.map { it.typeId },
+            discoveredPersonalities = current.discoveredPersonalities + current.ownedCats.map { it.personality },
+            discoveredRarities = current.discoveredRarities + current.ownedCats.map { it.rarity },
         )
         saves.save(_state.value)
     }
@@ -173,7 +182,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun update(block: (GameState) -> GameState) {
-        _state.value = block(_state.value)
+        _state.value = withDiscoveries(block(_state.value))
     }
 
     private fun startIdleLoop() {
