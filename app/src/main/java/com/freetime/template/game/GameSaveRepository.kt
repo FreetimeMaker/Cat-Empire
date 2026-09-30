@@ -16,7 +16,7 @@ class GameSaveRepository(context: Context) {
         state.cats.forEach { editor.putInt("cat_" + it.id, it.owned) }
         editor.putLong("ownedCatCount", state.ownedCats.size.toLong())
         state.ownedCats.forEachIndexed { index, cat ->
-            editor.putString("ownedCat_" + index, listOf(cat.id, cat.typeId, cat.name, cat.personality.name, cat.rarity.name, cat.bondXp).joinToString("|"))
+            editor.putString("ownedCat_" + index, listOf(cat.id, cat.typeId, cat.name, cat.personality.name, cat.rarity.name, cat.bondXp, cat.activity.name).joinToString("|"))
         }
         state.upgrades.forEach { editor.putInt("upgrade_" + it.id, it.level) }
         editor.putString("achievements", state.claimedPawchievements.joinToString(";"))
@@ -51,6 +51,7 @@ class GameSaveRepository(context: Context) {
                     personality = CatPersonality.valueOf(parts[3]),
                     rarity = CatRarity.valueOf(parts[4]),
                     bondXp = parts.getOrNull(5)?.toLongOrNull() ?: 0L,
+                    activity = parts.getOrNull(6)?.let { CatActivity.valueOf(it) } ?: CatActivity.SLEEPING,
                 )
             }.getOrNull()
         }
