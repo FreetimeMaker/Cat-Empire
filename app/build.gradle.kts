@@ -4,13 +4,13 @@ plugins {
 }
 
 android {
-    namespace = "com.freetime.template"
+    namespace = "com.freetime.catempire"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "com.freetime.template"
+        applicationId = "com.freetime.catempire"
         minSdk = 24
         targetSdk = 37
         versionCode = 1
