@@ -1,4 +1,4 @@
-package com.freetime.template.ui
+package com.freetime.catempire.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -31,14 +31,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.freetime.template.game.CatType
-import com.freetime.template.game.CatUpgrade
-import com.freetime.template.game.UpgradeEffect
-import com.freetime.template.game.GameViewModel
-import com.freetime.template.game.OwnedCat
-import com.freetime.template.game.pawchievements
-import com.freetime.template.game.catCollars
-import com.freetime.template.game.collarById
+import com.freetime.catempire.game.CatType
+import com.freetime.catempire.game.CatUpgrade
+import com.freetime.catempire.game.UpgradeEffect
+import com.freetime.catempire.game.GameViewModel
+import com.freetime.catempire.game.OwnedCat
+import com.freetime.catempire.game.pawchievements
+import com.freetime.catempire.game.catCollars
+import com.freetime.catempire.game.collarById
 import java.text.DecimalFormat
 import kotlinx.coroutines.delay
 
@@ -257,7 +257,7 @@ fun GameScreen(
                 Text(state.home.description, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Text("Empire production: x" + purrFormat.format(state.home.productionMultiplier))
                 Text("Rooms: " + state.home.rooms.joinToString(" · "))
-                if (state.homeLevel < com.freetime.template.game.catHomes.lastIndex) {
+                if (state.homeLevel < com.freetime.catempire.game.catHomes.lastIndex) {
                     Button(
                         onClick = viewModel::upgradeHome,
                         enabled = state.purrs >= state.home.upgradeCost,
@@ -281,8 +281,8 @@ fun GameScreen(
                     Text(room.description, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text(
                         when (room.effect) {
-                            com.freetime.template.game.RoomEffect.PET_POWER -> "Pet power: x" + purrFormat.format(room.multiplier)
-                            com.freetime.template.game.RoomEffect.CAT_PRODUCTION -> "Cat production: x" + purrFormat.format(room.multiplier)
+                            com.freetime.catempire.game.RoomEffect.PET_POWER -> "Pet power: x" + purrFormat.format(room.multiplier)
+                            com.freetime.catempire.game.RoomEffect.CAT_PRODUCTION -> "Cat production: x" + purrFormat.format(room.multiplier)
                         }
                     )
                     Button(
@@ -431,7 +431,7 @@ private fun MyCatCard(
     onPlay: () -> Unit,
     onRest: () -> Unit,
     canFeed: Boolean,
-    rooms: List<com.freetime.template.game.CatRoom>,
+    rooms: List<com.freetime.catempire.game.CatRoom>,
     onRoom: (String?) -> Unit,
 ) {
     Card(
@@ -446,13 +446,13 @@ private fun MyCatCard(
             Text((type?.name ?: "Cat") + " - " + cat.personality.label)
             Text(
                 when (cat.personality) {
-                    com.freetime.template.game.CatPersonality.LAZY -> "Trait: Loves naps - recovers energy quickly."
-                    com.freetime.template.game.CatPersonality.PLAYFUL -> "Trait: Toy lover - gains extra happiness from play."
-                    com.freetime.template.game.CatPersonality.CURIOUS -> "Trait: Explorer - enjoys activity but uses more energy."
-                    com.freetime.template.game.CatPersonality.AFFECTIONATE -> "Trait: Cuddly - gains much more happiness from pets."
-                    com.freetime.template.game.CatPersonality.SHY -> "Trait: Quiet - prefers rest and gentle attention."
-                    com.freetime.template.game.CatPersonality.CHAOTIC -> "Trait: Chaos machine - powerful but burns energy fast."
-                    com.freetime.template.game.CatPersonality.HUNGRY -> "Trait: Snack obsessed - gets hungry much faster."
+                    com.freetime.catempire.game.CatPersonality.LAZY -> "Trait: Loves naps - recovers energy quickly."
+                    com.freetime.catempire.game.CatPersonality.PLAYFUL -> "Trait: Toy lover - gains extra happiness from play."
+                    com.freetime.catempire.game.CatPersonality.CURIOUS -> "Trait: Explorer - enjoys activity but uses more energy."
+                    com.freetime.catempire.game.CatPersonality.AFFECTIONATE -> "Trait: Cuddly - gains much more happiness from pets."
+                    com.freetime.catempire.game.CatPersonality.SHY -> "Trait: Quiet - prefers rest and gentle attention."
+                    com.freetime.catempire.game.CatPersonality.CHAOTIC -> "Trait: Chaos machine - powerful but burns energy fast."
+                    com.freetime.catempire.game.CatPersonality.HUNGRY -> "Trait: Snack obsessed - gets hungry much faster."
                 },
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
