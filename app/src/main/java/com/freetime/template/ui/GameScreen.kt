@@ -136,6 +136,28 @@ fun GameScreen(
         }
 
         Spacer(Modifier.height(4.dp))
+        Text("Cat Home", modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(state.home.emoji + " " + state.home.name, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                Text(state.home.description, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("Empire production: x" + purrFormat.format(state.home.productionMultiplier))
+                Text("Rooms: " + state.home.rooms.joinToString(" · "))
+                if (state.homeLevel < com.freetime.template.game.catHomes.lastIndex) {
+                    Button(
+                        onClick = viewModel::upgradeHome,
+                        enabled = state.purrs >= state.home.upgradeCost,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text("Expand home for " + formatPurrs(state.home.upgradeCost) + " Purrs")
+                    }
+                } else {
+                    Text("Maximum empire level reached", fontWeight = FontWeight.Bold)
+                }
+            }
+        }
+
+        Spacer(Modifier.height(4.dp))
         Text(
             "Adoption Center",
             modifier = Modifier.fillMaxWidth(),
