@@ -1,4 +1,4 @@
-package com.freetime.template.game
+package com.freetime.catempire.game
 
 data class CatHome(
     val level: Int,
