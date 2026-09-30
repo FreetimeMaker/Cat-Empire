@@ -41,6 +41,8 @@ class GameSaveRepository(context: Context) {
             ownedCats = loadOwnedCats(),
             selectedCatId = prefs.getLong("selectedCatId", -1L).takeIf { it >= 0L },
             discoveredCatTypes = prefs.getString("dex_t", "").orEmpty().split(";").filter(String::isNotBlank).toSet(),
+            discoveredPersonalities = parsePersonalities(prefs.getString("dex_p", "").orEmpty()),
+            discoveredRarities = parseRarities(prefs.getString("dex_r", "").orEmpty()),
             homeLevel = prefs.getInt("homeLevel", 0),
             lives = prefs.getInt("lives", 0),
             dailyStreak = prefs.getInt("daily_s", 0),
@@ -51,6 +53,14 @@ class GameSaveRepository(context: Context) {
         )
         return SavedGame(state, prefs.getLong("savedAt", System.currentTimeMillis()))
     }
+
+    private fun parsePersonalities(value: String) = value.split(";").mapNotNull { name ->
+        CatPersonality.entries.firstOrNull { it.name == name }
+    }.toSet()
+
+    private fun parseRarities(value: String) = value.split(";").mapNotNull { name ->
+        CatRarity.entries.firstOrNull { it.name == name }
+    }.toSet()
 
     private fun loadOwnedCats(): List<OwnedCat> {
         val count = prefs.getLong("ownedCatCount", 0L).toInt()
