@@ -9,6 +9,9 @@ data class GameState(
     val selectedCatId: Long? = null,
     val upgrades: List<CatUpgrade> = starterUpgrades(),
     val claimedPawchievements: Set<String> = emptySet(),
+    val activeEvent: CatEvent? = null,
+    val eventMultiplier: Double = 1.0,
+    val eventSeconds: Int = 0,
     val lastCatNapPurrs: Double = 0.0,
     val lastCatNapSeconds: Long = 0L,
 ) {
