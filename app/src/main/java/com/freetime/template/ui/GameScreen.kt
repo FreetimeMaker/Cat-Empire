@@ -145,8 +145,13 @@ fun GameScreen(
         }
 
         if (selectedTab.showsHome()) {
+        val activeCat = state.ownedCats.firstOrNull { it.id == state.selectedCatId }
+        if (activeCat != null) {
+            val activeType = state.cats.firstOrNull { it.id == activeCat.typeId }
+            CatActivityScene(cat = activeCat, typeEmoji = activeType?.emoji ?: "🐱")
+        }
         Text(
-            "🐱",
+            activeCat?.let { state.cats.firstOrNull { type -> type.id == it.typeId }?.emoji } ?: "🐱",
             modifier = Modifier.graphicsLayer {
                 scaleX = if (petPulse) 1.18f else 1f
                 scaleY = if (petPulse) 1.18f else 1f
