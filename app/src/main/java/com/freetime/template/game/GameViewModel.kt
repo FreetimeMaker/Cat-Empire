@@ -87,6 +87,18 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun startNewLife() {
+        val current = _state.value
+        if (current.homeLevel < catHomes.lastIndex) return
+        _state.value = GameState(
+            lives = current.lives + 1,
+            totalPets = current.totalPets,
+            totalPurrsEarned = current.totalPurrsEarned,
+            claimedPawchievements = current.claimedPawchievements,
+        )
+        saves.save(_state.value)
+    }
+
     fun upgradeHome() {
         val current = _state.value
         if (current.homeLevel >= catHomes.lastIndex) return
