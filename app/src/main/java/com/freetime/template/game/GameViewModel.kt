@@ -17,6 +17,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     init {
         startIdleLoop()
         startActivityLoop()
+        startEventLoop()
         startAutoSave()
     }
 
@@ -131,6 +132,48 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                         val list = CatActivity.entries
                         cat.copy(activity = list[((cat.id + cycle) % list.size).toInt()])
                     })
+                }
+            }
+        }
+    }
+
+    fun resolveEvent() {
+        val event = _state.value.activeEvent ?: return
+        update { current ->
+            when (event.type) {
+                CatEventType.MYSTERY_BOX -> {
+                    val reward = (current.purrsPerSecond * 60.0).coerceAtLeast(100.0)
+                    current.copy(purrs = current.purrs + reward, totalPurrsEarned = current.totalPurrsEarned + reward, activeEvent = null)
+                }
+                CatEventType.CATNIP -> current.copy(activeEvent = null, eventMultiplier = 2.0, eventSeconds = 60)
+                CatEventType.ZOOMIES -> current.copy(activeEvent = null, eventMultiplier = 3.0, eventSeconds = 15)
+                CatEventType.TOILET_PAPER -> current.copy(activeEvent = null)
+                CatEventType.STRAY -> {
+                    val type = current.cats.first()
+                    val id = (current.ownedCats.maxOfOrNull(OwnedCat::id) ?: 0L) + 1L
+                    current.copy(
+                        activeEvent = null,
+                        cats = current.cats.map { if (it.id == type.id) it.copy(owned = it.owned + 1) else it },
+                        ownedCats = current.ownedCats + createAdoptedCat(type.id, id),
+                        selectedCatId = current.selectedCatId ?: id,
+                    )
+                }
+            }
+        }
+    }
+
+    private fun startEventLoop() {
+        viewModelScope.launch {
+            var cycle = 0
+            while (isActive) {
+                delay(1_000L)
+                cycle++
+                update { current ->
+                    if (current.eventSeconds > 1) current.copy(eventSeconds = current.eventSeconds - 1)
+                    else if (current.eventSeconds == 1) current.copy(eventSeconds = 0, eventMultiplier = 1.0)
+                    else if (cycle % 45 == 0 && current.activeEvent == null && current.ownedCats.isNotEmpty()) {
+                        current.copy(activeEvent = catEvents[(cycle / 45) % catEvents.size])
+                    } else current
                 }
             }
         }
