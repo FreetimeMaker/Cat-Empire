@@ -72,6 +72,19 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun claimPawchievement(id: String) {
+        val current = _state.value
+        val achievement = pawchievements.firstOrNull { it.id == id } ?: return
+        if (id in current.claimedPawchievements || !achievement.unlocked(current)) return
+        update {
+            it.copy(
+                purrs = it.purrs + achievement.reward,
+                totalPurrsEarned = it.totalPurrsEarned + achievement.reward,
+                claimedPawchievements = it.claimedPawchievements + id,
+            )
+        }
+    }
+
     fun buyUpgrade(upgradeId: String) {
         val current = _state.value
         val upgrade = current.upgrades.firstOrNull { it.id == upgradeId } ?: return
