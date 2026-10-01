@@ -45,7 +45,13 @@ data class GameState(
                     cat.personality in room.preferredPersonalities -> 1.35
                     else -> 1.10
                 }
-                cat.production(type?.basePurrsPerSecond ?: 0.0) * assignmentBonus
+                val job = jobById(cat.jobId)?.takeIf { it.roomId == room?.id }
+                val jobBonus = when {
+                    job == null -> 1.0
+                    cat.personality in job.preferredPersonalities -> job.productionMultiplier + 0.10
+                    else -> job.productionMultiplier
+                }
+                cat.production(type?.basePurrsPerSecond ?: 0.0) * assignmentBonus * jobBonus
             }
         }
 
