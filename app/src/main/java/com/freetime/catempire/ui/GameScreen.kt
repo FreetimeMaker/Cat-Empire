@@ -100,7 +100,7 @@ fun GameScreen(
             )
         }
         state.strayEncounter != null -> {
-            val encounter = state.strayEncounter
+            val encounter = requireNotNull(state.strayEncounter)
             val type = state.cats.firstOrNull { it.id == encounter.typeId }
             AlertDialog(
                 onDismissRequest = {},
@@ -134,7 +134,7 @@ fun GameScreen(
             )
         }
         state.activeEvent != null -> {
-            val event = state.activeEvent
+            val event = requireNotNull(state.activeEvent)
             AlertDialog(
                 onDismissRequest = {},
                 title = { Text(event.emoji + " " + event.title) },
