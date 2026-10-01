@@ -22,6 +22,7 @@ data class GameState(
     val eventSeconds: Int = 0,
     val lastMysteryReward: String? = null,
     val lastEventResult: String? = null,
+    val strayEncounter: StrayEncounter? = null,
     val lastCatNapPurrs: Double = 0.0,
     val lastCatNapSeconds: Long = 0L,
 ) {
