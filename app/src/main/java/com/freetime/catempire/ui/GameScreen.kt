@@ -398,6 +398,50 @@ fun GameScreen(
 
         if (selectedTab.showsMore()) {
         Spacer(Modifier.height(4.dp))
+        Text("Daily Quests", modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        Text("Fresh goals reset each local day.", modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.onSurfaceVariant)
+        com.freetime.catempire.game.dailyQuests.forEach { quest ->
+            val progress = when (quest.metric) {
+                com.freetime.catempire.game.DailyQuestMetric.PETS -> state.dailyPets
+                com.freetime.catempire.game.DailyQuestMetric.FEEDS -> state.dailyFeeds
+                com.freetime.catempire.game.DailyQuestMetric.PLAYS -> state.dailyPlays
+                com.freetime.catempire.game.DailyQuestMetric.PURRS -> state.dailyPurrs.toLong()
+            }.coerceAtMost(quest.target)
+            val claimed = quest.id in state.claimedDailyQuests
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(quest.icon + " " + quest.name, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                    Text(quest.description, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(progress.toString() + " / " + quest.target)
+                    androidx.compose.material3.LinearProgressIndicator(
+                        progress = { (progress.toFloat() / quest.target.toFloat()).coerceIn(0f, 1f) },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    Text("Reward: " + formatPurrs(quest.reward) + " Purrs")
+                    Button(
+                        onClick = { viewModel.claimDailyQuest(quest.id) },
+                        enabled = progress >= quest.target && !claimed,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(if (claimed) "Claimed" else if (progress >= quest.target) "Claim reward" else "In progress")
+                    }
+                }
+            }
+        }
+        val allDailyClaimed = state.claimedDailyQuests.size >= com.freetime.catempire.game.dailyQuests.size
+        Button(
+            onClick = viewModel::claimDailyQuestBonus,
+            enabled = allDailyClaimed && !state.dailyQuestBonusClaimed,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(
+                if (state.dailyQuestBonusClaimed) "Daily bonus claimed"
+                else if (allDailyClaimed) "Claim all-quests bonus"
+                else "Complete all daily quests for a bonus"
+            )
+        }
+
+        Spacer(Modifier.height(8.dp))
         Text("Cat Quests", modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
         Text("Complete empire goals and collect extra Purrs.", modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.onSurfaceVariant)
         com.freetime.catempire.game.catQuests.forEach { quest ->
