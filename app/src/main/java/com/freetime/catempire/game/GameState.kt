@@ -15,6 +15,7 @@ data class GameState(
     val homeLevel: Int = 0,
     val lives: Int = 0,
     val claimedPawchievements: Set<String> = emptySet(),
+    val claimedQuests: Set<String> = emptySet(),
     val dailyStreak: Int = 0,
     val lastDailyClaimAt: Long = 0L,
     val activeEvent: CatEvent? = null,
