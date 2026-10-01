@@ -20,7 +20,7 @@ class GameSaveRepository(context: Context) {
         state.cats.forEach { editor.putInt("cat_" + it.id, it.owned) }
         editor.putLong("ownedCatCount", state.ownedCats.size.toLong())
         state.ownedCats.forEachIndexed { index, cat ->
-            editor.putString("ownedCat_" + index, listOf(cat.id, cat.typeId, cat.name, cat.personality.name, cat.rarity.name, cat.bondXp, cat.activity.name, cat.collarId, cat.happiness, cat.energy, cat.satiety, cat.assignedRoomId.orEmpty()).joinToString("|"))
+            editor.putString("ownedCat_" + index, listOf(cat.id, cat.typeId, cat.name, cat.personality.name, cat.rarity.name, cat.bondXp, cat.activity.name, cat.collarId, cat.happiness, cat.energy, cat.satiety, cat.assignedRoomId.orEmpty(), cat.jobId.orEmpty()).joinToString("|"))
         }
         state.upgrades.forEach { editor.putInt("upgrade_" + it.id, it.level) }
         state.rooms.forEach { editor.putInt("rm_" + it.id, it.level) }
@@ -96,6 +96,7 @@ class GameSaveRepository(context: Context) {
                     energy = parts.getOrNull(9)?.toIntOrNull() ?: 80,
                     satiety = parts.getOrNull(10)?.toIntOrNull() ?: 80,
                     assignedRoomId = parts.getOrNull(11)?.takeIf(String::isNotBlank),
+                    jobId = parts.getOrNull(12)?.takeIf(String::isNotBlank),
                 )
             }.getOrNull()
         }
