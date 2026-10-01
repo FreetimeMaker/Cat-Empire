@@ -165,6 +165,21 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         discoveredRarities = state.discoveredRarities + state.ownedCats.map { it.rarity },
     )
 
+    fun buyGeneratorSynergy(synergyId: String) {
+        val current = _state.value
+        val synergy = generatorSynergies.firstOrNull { it.id == synergyId } ?: return
+        if (synergyId in current.purchasedGeneratorSynergies) return
+        val a = current.generators.firstOrNull { it.id == synergy.generatorA } ?: return
+        val b = current.generators.firstOrNull { it.id == synergy.generatorB } ?: return
+        if (a.owned < synergy.requiredA || b.owned < synergy.requiredB || current.purrs < synergy.cost) return
+        update {
+            it.copy(
+                purrs = it.purrs - synergy.cost,
+                purchasedGeneratorSynergies = it.purchasedGeneratorSynergies + synergyId,
+            )
+        }
+    }
+
     fun buyGeneratorUpgrade(upgradeId: String) {
         val current = _state.value
         val upgrade = generatorUpgrades.firstOrNull { it.id == upgradeId } ?: return
