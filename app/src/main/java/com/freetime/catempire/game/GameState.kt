@@ -33,12 +33,16 @@ data class GameState(
     val lastMysteryReward: String? = null,
     val lastEventResult: String? = null,
     val strayEncounter: StrayEncounter? = null,
+    val goldenCat: GoldenCat? = null,
+    val goldenCatBuff: GoldenCatBuff? = null,
+    val goldenCatsClicked: Long = 0L,
     val lastCatNapPurrs: Double = 0.0,
     val lastCatNapSeconds: Long = 0L,
 ) {
     val purrsPerPet: Double
         get() = (1.0 + upgrades.filter { it.effect == UpgradeEffect.PET_POWER }.sumOf(CatUpgrade::totalBonus)) *
-            rooms.filter { it.effect == RoomEffect.PET_POWER }.fold(1.0) { total, room -> total * room.multiplier }
+            rooms.filter { it.effect == RoomEffect.PET_POWER }.fold(1.0) { total, room -> total * room.multiplier } *
+            (goldenCatBuff?.petMultiplier ?: 1.0)
 
     val catProductionMultiplier: Double
         get() = (1.0 + upgrades.filter { it.effect == UpgradeEffect.CAT_PRODUCTION }.sumOf(CatUpgrade::totalBonus)) *
@@ -79,7 +83,7 @@ data class GameState(
 
     val purrsPerSecond: Double
         get() = (basePurrsPerSecond * catProductionMultiplier + generatorPurrsPerSecond) *
-            eventMultiplier * home.productionMultiplier * prestigeMultiplier
+            eventMultiplier * (goldenCatBuff?.productionMultiplier ?: 1.0) * home.productionMultiplier * prestigeMultiplier
 
     val totalCats: Int
         get() = if (ownedCats.isEmpty()) cats.sumOf(CatType::owned) else ownedCats.size
