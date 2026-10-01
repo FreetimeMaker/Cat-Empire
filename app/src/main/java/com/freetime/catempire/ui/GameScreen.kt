@@ -99,6 +99,32 @@ fun GameScreen(
                 confirmButton = { Button(onClick = viewModel::dismissMysteryReward) { Text("Collect") } },
             )
         }
+        state.strayEncounter != null -> {
+            val encounter = state.strayEncounter
+            val type = state.cats.firstOrNull { it.id == encounter.typeId }
+            AlertDialog(
+                onDismissRequest = {},
+                title = { Text("🐾 Rare Stray") },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text((type?.emoji ?: "🐱") + " " + encounter.cat.name, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                        Text((type?.name ?: "Cat") + " · " + encounter.cat.personality.label)
+                        Text("Rarity: " + encounter.cat.rarity.label, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+                        Text("Leaves in " + encounter.secondsLeft + " seconds")
+                        Text("Adoption: ♡ " + formatPurrs(encounter.adoptionCost) + " Purrs")
+                    }
+                },
+                confirmButton = {
+                    Button(
+                        onClick = viewModel::adoptStray,
+                        enabled = state.purrs >= encounter.adoptionCost,
+                    ) { Text("Adopt") }
+                },
+                dismissButton = {
+                    Button(onClick = viewModel::dismissStray) { Text("Let go") }
+                },
+            )
+        }
         state.lastEventResult != null -> {
             AlertDialog(
                 onDismissRequest = viewModel::dismissEventResult,
