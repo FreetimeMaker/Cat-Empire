@@ -192,6 +192,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 generators = it.generators.map { item ->
                     if (item.id == generatorId) item.copy(owned = item.owned + amount) else item
                 },
+                totalGeneratorsBought = it.totalGeneratorsBought + amount,
             )
         }
     }
@@ -324,6 +325,9 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             totalPets = current.totalPets,
             totalPurrsEarned = current.totalPurrsEarned,
             goldenCatsClicked = current.goldenCatsClicked,
+            totalGeneratorsBought = current.totalGeneratorsBought,
+            highestPurrsPerSecond = current.highestPurrsPerSecond,
+            playTimeSeconds = current.playTimeSeconds,
             claimedPawchievements = current.claimedPawchievements,
             claimedQuests = current.claimedQuests,
             discoveredCatTypes = current.discoveredCatTypes + current.ownedCats.map { it.typeId },
@@ -618,13 +622,20 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private fun updateLifetimeStats(current: GameState): GameState =
+        current.copy(
+            playTimeSeconds = current.playTimeSeconds + 1L,
+            highestPurrsPerSecond = maxOf(current.highestPurrsPerSecond, current.purrsPerSecond),
+        )
+
     private fun startEventLoop() {
         viewModelScope.launch {
             var cycle = 0
             while (isActive) {
                 delay(1_000L)
                 cycle++
-                update { current ->
+                update { raw ->
+                    val current = updateLifetimeStats(raw)
                     if (current.eventSeconds > 1) current.copy(eventSeconds = current.eventSeconds - 1)
                     else if (current.eventSeconds == 1) current.copy(eventSeconds = 0, eventMultiplier = 1.0)
                     else if (cycle % 45 == 0 && current.activeEvent == null && current.ownedCats.isNotEmpty()) {
