@@ -70,7 +70,7 @@ fun GameScreen(
             AlertDialog(
                 onDismissRequest = { confirmNewLife = false },
                 title = { Text("Start a new life?") },
-                text = { Text("Your current cats, Purrs, home, rooms and upgrades reset. Catdex discoveries, achievements and all-time stats stay. You gain a permanent +25% production bonus.") },
+                text = { Text("Your current cats, generators, Purrs, home, rooms and run upgrades reset. Permanent Life upgrades, Catdex discoveries, achievements and all-time stats stay. You will gain " + state.prestigePointsAvailable + " Life Points.") },
                 confirmButton = {
                     Button(onClick = {
                         viewModel.startNewLife()
@@ -383,10 +383,30 @@ fun GameScreen(
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Lives: " + state.lives, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                Text("Life Points: " + state.lifePoints + " · Earned: " + state.totalLifePoints)
+                Text("Prestige now: +" + state.prestigePointsAvailable + " Life Points", fontWeight = FontWeight.Bold)
                 Text("Permanent production: x" + purrFormat.format(state.prestigeMultiplier))
-                Text("Each new life permanently adds 25% production.")
-                Button(onClick = { confirmNewLife = true }, enabled = state.homeLevel >= 5, modifier = Modifier.fillMaxWidth()) {
-                    Text(if (state.homeLevel >= 5) "Start a new life" else "Reach Cat Sanctuary to unlock")
+                Text("Permanent petting: x" + purrFormat.format(state.petPrestigeMultiplier))
+                Button(onClick = { confirmNewLife = true }, enabled = state.prestigePointsAvailable > 0, modifier = Modifier.fillMaxWidth()) {
+                    Text(if (state.prestigePointsAvailable > 0) "Start new life · +" + state.prestigePointsAvailable + " LP" else "Earn 1M lifetime Purrs to begin")
+                }
+                Text("Permanent Life Upgrades", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                com.freetime.catempire.game.lifeUpgrades.forEach { upgrade ->
+                    val level = state.lifeUpgradeLevels[upgrade.id] ?: 0
+                    val maxed = level >= upgrade.maxLevel
+                    Card(modifier = Modifier.fillMaxWidth()) {
+                        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text(upgrade.name + " · Lv. " + level + "/" + upgrade.maxLevel, fontWeight = FontWeight.Bold)
+                            Text(upgrade.description, style = MaterialTheme.typography.bodySmall)
+                            Button(
+                                onClick = { viewModel.buyLifeUpgrade(upgrade.id) },
+                                enabled = !maxed && state.lifePoints >= upgrade.cost(level),
+                                modifier = Modifier.fillMaxWidth(),
+                            ) {
+                                Text(if (maxed) "Maxed" else "Upgrade · " + upgrade.cost(level) + " LP")
+                            }
+                        }
+                    }
                 }
             }
         }
