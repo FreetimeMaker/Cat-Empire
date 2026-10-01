@@ -16,6 +16,12 @@ class GameSaveRepository(context: Context) {
             .putInt("lives", state.lives)
             .putInt("daily_s", state.dailyStreak)
             .putLong("daily_t", state.lastDailyClaimAt)
+            .putString("dq_day", state.dailyQuestDay)
+            .putLong("dq_pets", state.dailyPets)
+            .putLong("dq_feeds", state.dailyFeeds)
+            .putLong("dq_plays", state.dailyPlays)
+            .putString("dq_purrs", state.dailyPurrs.toString())
+            .putBoolean("dq_bonus", state.dailyQuestBonusClaimed)
 
         state.cats.forEach { editor.putInt("cat_" + it.id, it.owned) }
         editor.putLong("ownedCatCount", state.ownedCats.size.toLong())
@@ -29,6 +35,7 @@ class GameSaveRepository(context: Context) {
         editor.putString("dex_r", state.discoveredRarities.joinToString(";") { it.name })
         editor.putString("achievements", state.claimedPawchievements.joinToString(";"))
         editor.putString("quests", state.claimedQuests.joinToString(";"))
+        editor.putString("daily_quests", state.claimedDailyQuests.joinToString(";"))
         editor.apply()
     }
 
@@ -51,6 +58,13 @@ class GameSaveRepository(context: Context) {
             lives = prefs.getInt("lives", 0),
             dailyStreak = prefs.getInt("daily_s", 0),
             lastDailyClaimAt = prefs.getLong("daily_t", 0L),
+            dailyQuestDay = prefs.getString("dq_day", currentDayKey()) ?: currentDayKey(),
+            dailyPets = prefs.getLong("dq_pets", 0L),
+            dailyFeeds = prefs.getLong("dq_feeds", 0L),
+            dailyPlays = prefs.getLong("dq_plays", 0L),
+            dailyPurrs = prefs.getString("dq_purrs", "0")?.toDoubleOrNull() ?: 0.0,
+            claimedDailyQuests = prefs.getString("daily_quests", "").orEmpty().split(";").filter(String::isNotBlank).toSet(),
+            dailyQuestBonusClaimed = prefs.getBoolean("dq_bonus", false),
             upgrades = starterUpgrades().map { it.copy(level = prefs.getInt("upgrade_" + it.id, 0)) },
             rooms = starterRooms().map { room -> room.copy(level = prefs.getInt("rm_" + room.id, 0)) },
             claimedPawchievements = prefs.getString("achievements", "").orEmpty().split(";").filter { it.isNotBlank() }.toSet(),
