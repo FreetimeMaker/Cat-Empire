@@ -71,10 +71,14 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 purrs = state.purrs - cost,
                 dailyFeeds = state.dailyFeeds + 1,
                 ownedCats = state.ownedCats.map { cat ->
-                    if (cat.id == catId) cat.copy(
-                        satiety = (cat.satiety + 30).coerceAtMost(100),
+                    if (cat.id == catId) {
+                        val room = state.rooms.firstOrNull { it.id == cat.assignedRoomId }
+                        val bonus = if (room?.needEffect == RoomNeedEffect.FOOD || room?.needEffect == RoomNeedEffect.ALL_NEEDS) 15 else 0
+                        cat.copy(
+                        satiety = (cat.satiety + 30 + bonus).coerceAtMost(100),
                         happiness = (cat.happiness + 5).coerceAtMost(100),
-                    ) else cat
+                        )
+                    } else cat
                 },
             )
         }
