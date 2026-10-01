@@ -5,6 +5,7 @@ data class GameState(
     val totalPets: Long = 0,
     val totalPurrsEarned: Double = 0.0,
     val cats: List<CatType> = starterCats(),
+    val generators: List<PurrGenerator> = starterGenerators(),
     val ownedCats: List<OwnedCat> = emptyList(),
     val selectedCatId: Long? = null,
     val discoveredCatTypes: Set<String> = emptySet(),
@@ -70,8 +71,12 @@ data class GameState(
     val prestigeMultiplier: Double
         get() = 1.0 + lives * 0.25
 
+    val generatorPurrsPerSecond: Double
+        get() = generators.sumOf(PurrGenerator::production)
+
     val purrsPerSecond: Double
-        get() = basePurrsPerSecond * catProductionMultiplier * eventMultiplier * home.productionMultiplier * prestigeMultiplier
+        get() = (basePurrsPerSecond * catProductionMultiplier + generatorPurrsPerSecond) *
+            eventMultiplier * home.productionMultiplier * prestigeMultiplier
 
     val totalCats: Int
         get() = if (ownedCats.isEmpty()) cats.sumOf(CatType::owned) else ownedCats.size
