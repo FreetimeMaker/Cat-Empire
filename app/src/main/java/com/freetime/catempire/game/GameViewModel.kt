@@ -262,11 +262,24 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             while (isActive) {
                 delay(100L)
                 val current = _state.value
-                val earned = current.purrsPerSecond * 0.1
+                val encounter = current.strayEncounter
+                if (encounter != null) {
+                    val nextSeconds = encounter.secondsLeft - 1
+                    if (nextSeconds <= 0) {
+                        _state.value = current.copy(
+                            strayEncounter = null,
+                            lastEventResult = encounter.cat.name + " wandered away before you could adopt them.",
+                        )
+                    } else {
+                        _state.value = current.copy(strayEncounter = encounter.copy(secondsLeft = nextSeconds))
+                    }
+                }
+                val latest = _state.value
+                val earned = latest.purrsPerSecond * 0.1
                 if (earned > 0.0) {
-                    _state.value = current.copy(
-                        purrs = current.purrs + earned,
-                        totalPurrsEarned = current.totalPurrsEarned + earned,
+                    _state.value = latest.copy(
+                        purrs = latest.purrs + earned,
+                        totalPurrsEarned = latest.totalPurrsEarned + earned,
                     )
                 }
             }
@@ -313,20 +326,35 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                         lastEventResult = "The cats destroyed the toilet paper. Cleanup cost " + cleanup.toLong() + " Purrs.",
                     )
                 }
-                CatEventType.STRAY -> {
-                    val type = current.cats.random()
-                    val id = (current.ownedCats.maxOfOrNull(OwnedCat::id) ?: 0L) + 1L
-                    val stray = createAdoptedCat(type.id, id)
-                    current.copy(
-                        activeEvent = null,
-                        cats = current.cats.map { if (it.id == type.id) it.copy(owned = it.owned + 1) else it },
-                        ownedCats = current.ownedCats + stray,
-                        selectedCatId = current.selectedCatId ?: id,
-                        lastEventResult = type.name + " " + stray.name + " joined your empire as a " + stray.rarity.label + " cat.",
-                    )
-                }
+                CatEventType.STRAY -> current.copy(
+                    activeEvent = null,
+                    strayEncounter = createStrayEncounter(current),
+                )
             }
         }
+    }
+
+    fun adoptStray() {
+        val current = _state.value
+        val encounter = current.strayEncounter ?: return
+        if (current.purrs < encounter.adoptionCost) return
+        val type = current.cats.firstOrNull { it.id == encounter.typeId } ?: return
+        update {
+            it.copy(
+                purrs = it.purrs - encounter.adoptionCost,
+                cats = it.cats.map { catType ->
+                    if (catType.id == type.id) catType.copy(owned = catType.owned + 1) else catType
+                },
+                ownedCats = it.ownedCats + encounter.cat,
+                selectedCatId = it.selectedCatId ?: encounter.cat.id,
+                strayEncounter = null,
+                lastEventResult = type.name + " " + encounter.cat.name + " joined your empire as a " + encounter.cat.rarity.label + " stray.",
+            )
+        }
+    }
+
+    fun dismissStray() {
+        update { it.copy(strayEncounter = null) }
     }
 
     fun dismissEventResult() {
