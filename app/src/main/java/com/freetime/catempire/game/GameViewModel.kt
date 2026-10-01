@@ -50,10 +50,14 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             dailyPurrs = current.dailyPurrs + current.purrsPerPet,
             selectedCatId = selectedId,
             ownedCats = current.ownedCats.map { cat ->
-                if (cat.id == selectedId) cat.copy(
-                    bondXp = cat.bondXp + 1L,
-                    happiness = (cat.happiness + cat.personality.petHappiness).coerceAtMost(100),
-                ) else cat
+                if (cat.id == selectedId) {
+                    val room = current.rooms.firstOrNull { it.id == cat.assignedRoomId }
+                    val bonus = if (room?.needEffect == RoomNeedEffect.AFFECTION || room?.needEffect == RoomNeedEffect.ALL_NEEDS) 3 else 0
+                    cat.copy(
+                        bondXp = cat.bondXp + 1L,
+                        happiness = (cat.happiness + cat.personality.petHappiness + bonus).coerceAtMost(100),
+                    )
+                } else cat
             },
         )
     }
