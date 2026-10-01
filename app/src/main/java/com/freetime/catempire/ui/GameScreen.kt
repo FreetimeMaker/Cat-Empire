@@ -210,6 +210,26 @@ fun GameScreen(
             style = MaterialTheme.typography.displayLarge,
         )
         PetFeedback(visible = petFeedback, amount = formatPurrs(state.purrsPerPet))
+        state.goldenCat?.let { golden ->
+            Button(
+                onClick = viewModel::clickGoldenCat,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("✨ 🐱 GOLDEN CAT 🐱 ✨", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                    Text("Tap quickly! " + golden.secondsLeft + "s")
+                }
+            }
+        }
+        state.goldenCatBuff?.let { buff ->
+            Text(
+                "✨ " + buff.name + " · " + buff.secondsLeft + "s" +
+                    if (buff.productionMultiplier > 1.0) " · Purrs x" + purrFormat.format(buff.productionMultiplier)
+                    else " · Pets x" + purrFormat.format(buff.petMultiplier),
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold,
+            )
+        }
         Button(
             onClick = {
                 viewModel.petCat()
