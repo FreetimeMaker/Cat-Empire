@@ -28,6 +28,7 @@ class GameSaveRepository(context: Context) {
         editor.putString("dex_p", state.discoveredPersonalities.joinToString(";") { it.name })
         editor.putString("dex_r", state.discoveredRarities.joinToString(";") { it.name })
         editor.putString("achievements", state.claimedPawchievements.joinToString(";"))
+        editor.putString("quests", state.claimedQuests.joinToString(";"))
         editor.apply()
     }
 
@@ -53,6 +54,7 @@ class GameSaveRepository(context: Context) {
             upgrades = starterUpgrades().map { it.copy(level = prefs.getInt("upgrade_" + it.id, 0)) },
             rooms = starterRooms().map { room -> room.copy(level = prefs.getInt("rm_" + room.id, 0)) },
             claimedPawchievements = prefs.getString("achievements", "").orEmpty().split(";").filter { it.isNotBlank() }.toSet(),
+            claimedQuests = prefs.getString("quests", "").orEmpty().split(";").filter { it.isNotBlank() }.toSet(),
         )
         return SavedGame(state, prefs.getLong("savedAt", System.currentTimeMillis()))
     }
