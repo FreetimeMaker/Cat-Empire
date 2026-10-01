@@ -327,6 +327,36 @@ fun GameScreen(
             }
         }
 
+        val availableSynergies = com.freetime.catempire.game.generatorSynergies.filter { synergy ->
+            synergy.id !in state.purchasedGeneratorSynergies &&
+                (state.generators.firstOrNull { it.id == synergy.generatorA }?.owned ?: 0) >= synergy.requiredA &&
+                (state.generators.firstOrNull { it.id == synergy.generatorB }?.owned ?: 0) >= synergy.requiredB
+        }
+        if (availableSynergies.isNotEmpty()) {
+            Spacer(Modifier.height(8.dp))
+            Text("Generator Synergies", modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+            Text("Link generator tiers together so owning more of one makes its partner stronger.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            availableSynergies.forEach { synergy ->
+                val a = state.generators.firstOrNull { it.id == synergy.generatorA }
+                val b = state.generators.firstOrNull { it.id == synergy.generatorB }
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                        Text("🔗 " + synergy.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text(synergy.description, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text((a?.name ?: "Generator") + " " + (a?.owned ?: 0) + " ↔ " + (b?.name ?: "Generator") + " " + (b?.owned ?: 0))
+                        Text("Each partner adds +" + purrFormat.format(synergy.bonusPerPartner * 100.0) + "% production.")
+                        Button(
+                            onClick = { viewModel.buyGeneratorSynergy(synergy.id) },
+                            enabled = state.purrs >= synergy.cost,
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Text("Unlock synergy · ♡ " + formatPurrs(synergy.cost))
+                        }
+                    }
+                }
+            }
+        }
+
         val availableGeneratorUpgrades = com.freetime.catempire.game.generatorUpgrades.filter { upgrade ->
             upgrade.id !in state.purchasedGeneratorUpgrades &&
                 (state.generators.firstOrNull { it.id == upgrade.generatorId }?.owned ?: 0) >= upgrade.requiredOwned
