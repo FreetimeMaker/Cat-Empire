@@ -164,6 +164,20 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         discoveredRarities = state.discoveredRarities + state.ownedCats.map { it.rarity },
     )
 
+    fun buyGeneratorUpgrade(upgradeId: String) {
+        val current = _state.value
+        val upgrade = generatorUpgrades.firstOrNull { it.id == upgradeId } ?: return
+        if (upgradeId in current.purchasedGeneratorUpgrades) return
+        val generator = current.generators.firstOrNull { it.id == upgrade.generatorId } ?: return
+        if (generator.owned < upgrade.requiredOwned || current.purrs < upgrade.cost) return
+        update {
+            it.copy(
+                purrs = it.purrs - upgrade.cost,
+                purchasedGeneratorUpgrades = it.purchasedGeneratorUpgrades + upgradeId,
+            )
+        }
+    }
+
     fun buyGenerator(generatorId: String, mode: BuyAmount = BuyAmount.ONE) {
         val current = _state.value
         val generator = current.generators.firstOrNull { it.id == generatorId } ?: return
