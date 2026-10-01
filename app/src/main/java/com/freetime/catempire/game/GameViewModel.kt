@@ -18,6 +18,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         startIdleLoop()
         startActivityLoop()
         startEventLoop()
+        startStrayTimer()
         startAutoSave()
     }
 
@@ -262,25 +263,31 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             while (isActive) {
                 delay(100L)
                 val current = _state.value
-                val encounter = current.strayEncounter
-                if (encounter != null) {
-                    val nextSeconds = encounter.secondsLeft - 1
-                    if (nextSeconds <= 0) {
-                        _state.value = current.copy(
-                            strayEncounter = null,
-                            lastEventResult = encounter.cat.name + " wandered away before you could adopt them.",
-                        )
-                    } else {
-                        _state.value = current.copy(strayEncounter = encounter.copy(secondsLeft = nextSeconds))
-                    }
-                }
-                val latest = _state.value
-                val earned = latest.purrsPerSecond * 0.1
+                val earned = current.purrsPerSecond * 0.1
                 if (earned > 0.0) {
-                    _state.value = latest.copy(
-                        purrs = latest.purrs + earned,
-                        totalPurrsEarned = latest.totalPurrsEarned + earned,
+                    _state.value = current.copy(
+                        purrs = current.purrs + earned,
+                        totalPurrsEarned = current.totalPurrsEarned + earned,
                     )
+                }
+            }
+        }
+    }
+
+    private fun startStrayTimer() {
+        viewModelScope.launch {
+            while (isActive) {
+                delay(1_000L)
+                val current = _state.value
+                val encounter = current.strayEncounter ?: continue
+                val nextSeconds = encounter.secondsLeft - 1
+                _state.value = if (nextSeconds <= 0) {
+                    current.copy(
+                        strayEncounter = null,
+                        lastEventResult = encounter.cat.name + " wandered away before you could adopt them.",
+                    )
+                } else {
+                    current.copy(strayEncounter = encounter.copy(secondsLeft = nextSeconds))
                 }
             }
         }
