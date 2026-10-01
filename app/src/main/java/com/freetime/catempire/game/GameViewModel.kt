@@ -27,7 +27,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         val saved = saves.load() ?: return GameState()
         val now = System.currentTimeMillis()
         val secondsAway = ((now - saved.savedAt) / 1000L).coerceAtLeast(0L)
-        val cappedSeconds = secondsAway.coerceAtMost(MAX_OFFLINE_SECONDS)
+        val cappedSeconds = secondsAway.coerceAtMost(BASE_MAX_OFFLINE_SECONDS + (saved.state.lifeUpgradeLevels["deep_naps"] ?: 0) * 30L * 60L)
         val offlinePurrs = saved.state.purrsPerSecond * cappedSeconds
         return saved.state.copy(
             purrs = saved.state.purrs + offlinePurrs,
@@ -296,13 +296,34 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun buyLifeUpgrade(upgradeId: String) {
+        val current = _state.value
+        val upgrade = lifeUpgrades.firstOrNull { it.id == upgradeId } ?: return
+        val level = current.lifeUpgradeLevels[upgradeId] ?: 0
+        if (level >= upgrade.maxLevel) return
+        val cost = upgrade.cost(level)
+        if (current.lifePoints < cost) return
+        update {
+            it.copy(
+                lifePoints = it.lifePoints - cost,
+                lifeUpgradeLevels = it.lifeUpgradeLevels + (upgradeId to level + 1),
+            )
+        }
+        saves.save(_state.value)
+    }
+
     fun startNewLife() {
         val current = _state.value
-        if (current.homeLevel < catHomes.lastIndex) return
+        val gainedPoints = current.prestigePointsAvailable
+        if (gainedPoints <= 0) return
         _state.value = GameState(
             lives = current.lives + 1,
+            lifePoints = current.lifePoints + gainedPoints,
+            totalLifePoints = current.totalLifePoints + gainedPoints,
+            lifeUpgradeLevels = current.lifeUpgradeLevels,
             totalPets = current.totalPets,
             totalPurrsEarned = current.totalPurrsEarned,
+            goldenCatsClicked = current.goldenCatsClicked,
             claimedPawchievements = current.claimedPawchievements,
             claimedQuests = current.claimedQuests,
             discoveredCatTypes = current.discoveredCatTypes + current.ownedCats.map { it.typeId },
@@ -629,7 +650,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private companion object {
-        const val MAX_OFFLINE_SECONDS = 8L * 60L * 60L
+        const val BASE_MAX_OFFLINE_SECONDS = 8L * 60L * 60L
         const val DAY_MS = 24L * 60L * 60L * 1000L
         const val STREAK_GRACE_MS = 48L * 60L * 60L * 1000L
     }
