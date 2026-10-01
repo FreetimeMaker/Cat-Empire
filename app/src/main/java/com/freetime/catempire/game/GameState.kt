@@ -16,6 +16,9 @@ data class GameState(
     val rooms: List<CatRoom> = starterRooms(),
     val homeLevel: Int = 0,
     val lives: Int = 0,
+    val lifePoints: Int = 0,
+    val totalLifePoints: Int = 0,
+    val lifeUpgradeLevels: Map<String, Int> = emptyMap(),
     val claimedPawchievements: Set<String> = emptySet(),
     val claimedQuests: Set<String> = emptySet(),
     val dailyQuestDay: String = currentDayKey(),
@@ -42,7 +45,7 @@ data class GameState(
     val purrsPerPet: Double
         get() = (1.0 + upgrades.filter { it.effect == UpgradeEffect.PET_POWER }.sumOf(CatUpgrade::totalBonus)) *
             rooms.filter { it.effect == RoomEffect.PET_POWER }.fold(1.0) { total, room -> total * room.multiplier } *
-            (goldenCatBuff?.petMultiplier ?: 1.0)
+            (goldenCatBuff?.petMultiplier ?: 1.0) * petPrestigeMultiplier
 
     val catProductionMultiplier: Double
         get() = (1.0 + upgrades.filter { it.effect == UpgradeEffect.CAT_PRODUCTION }.sumOf(CatUpgrade::totalBonus)) *
@@ -74,7 +77,13 @@ data class GameState(
         get() = catHomes[homeLevel.coerceIn(0, catHomes.lastIndex)]
 
     val prestigeMultiplier: Double
-        get() = 1.0 + lives * 0.25
+        get() = 1.0 + (lifeUpgradeLevels["eternal_purr"] ?: 0) * 0.10
+
+    val prestigePointsAvailable: Int
+        get() = (prestigePointsFor(totalPurrsEarned) - totalLifePoints).coerceAtLeast(0)
+
+    val petPrestigeMultiplier: Double
+        get() = 1.0 + (lifeUpgradeLevels["eternal_touch"] ?: 0) * 0.25
 
     val generatorPurrsPerSecond: Double
         get() = generators.sumOf { generator ->
