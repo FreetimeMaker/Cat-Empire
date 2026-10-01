@@ -7,6 +7,7 @@ data class GameState(
     val cats: List<CatType> = starterCats(),
     val generators: List<PurrGenerator> = starterGenerators(),
     val purchasedGeneratorUpgrades: Set<String> = emptySet(),
+    val purchasedGeneratorSynergies: Set<String> = emptySet(),
     val ownedCats: List<OwnedCat> = emptyList(),
     val selectedCatId: Long? = null,
     val discoveredCatTypes: Set<String> = emptySet(),
@@ -90,7 +91,9 @@ data class GameState(
 
     val generatorPurrsPerSecond: Double
         get() = generators.sumOf { generator ->
-            generator.production * generatorUpgradeMultiplier(generator.id, purchasedGeneratorUpgrades)
+            generator.production *
+                generatorUpgradeMultiplier(generator.id, purchasedGeneratorUpgrades) *
+                generatorSynergyMultiplier(generator.id)
         }
 
     val purrsPerSecond: Double
