@@ -379,6 +379,24 @@ fun GameScreen(
 
         if (selectedTab.showsMore()) {
         Spacer(Modifier.height(4.dp))
+        Text("Statistics", modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                Text("Lifetime Purrs: " + formatPurrs(state.totalPurrsEarned))
+                Text("Current Purrs/s: " + formatPurrs(state.purrsPerSecond))
+                Text("Highest Purrs/s: " + formatPurrs(state.highestPurrsPerSecond))
+                Text("Total pets: " + state.totalPets)
+                Text("Generators bought: " + state.totalGeneratorsBought)
+                Text("Golden Cats clicked: " + state.goldenCatsClicked)
+                Text("Lives started: " + state.lives)
+                val hours = state.playTimeSeconds / 3600L
+                val minutes = (state.playTimeSeconds % 3600L) / 60L
+                Text("Play time: " + hours + "h " + minutes + "m")
+                Text("Pawchievements: " + state.claimedPawchievements.size + "/" + com.freetime.catempire.game.pawchievements.size)
+            }
+        }
+
+        Spacer(Modifier.height(4.dp))
         Text("Nine Lives", modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
