@@ -190,6 +190,19 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         saves.save(_state.value)
     }
 
+    fun claimQuest(id: String) {
+        val current = _state.value
+        val quest = catQuests.firstOrNull { it.id == id } ?: return
+        if (id in current.claimedQuests || !quest.completed(current)) return
+        update {
+            it.copy(
+                purrs = it.purrs + quest.reward,
+                totalPurrsEarned = it.totalPurrsEarned + quest.reward,
+                claimedQuests = it.claimedQuests + id,
+            )
+        }
+    }
+
     fun claimPawchievement(id: String) {
         val current = _state.value
         val achievement = pawchievements.firstOrNull { it.id == id } ?: return
@@ -211,6 +224,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             totalPets = current.totalPets,
             totalPurrsEarned = current.totalPurrsEarned,
             claimedPawchievements = current.claimedPawchievements,
+            claimedQuests = current.claimedQuests,
             discoveredCatTypes = current.discoveredCatTypes + current.ownedCats.map { it.typeId },
             discoveredPersonalities = current.discoveredPersonalities + current.ownedCats.map { it.personality },
             discoveredRarities = current.discoveredRarities + current.ownedCats.map { it.rarity },
