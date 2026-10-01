@@ -398,6 +398,34 @@ fun GameScreen(
 
         if (selectedTab.showsMore()) {
         Spacer(Modifier.height(4.dp))
+        Text("Cat Quests", modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        Text("Complete empire goals and collect extra Purrs.", modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.onSurfaceVariant)
+        com.freetime.catempire.game.catQuests.forEach { quest ->
+            val progress = quest.progress(state)
+            val completed = quest.completed(state)
+            val claimed = quest.id in state.claimedQuests
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(quest.icon + " " + quest.name, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                    Text(quest.description, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(progress.toString() + " / " + quest.target)
+                    androidx.compose.material3.LinearProgressIndicator(
+                        progress = { (progress.toFloat() / quest.target.toFloat()).coerceIn(0f, 1f) },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    Text("Reward: " + formatPurrs(quest.reward) + " Purrs")
+                    Button(
+                        onClick = { viewModel.claimQuest(quest.id) },
+                        enabled = completed && !claimed,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(if (claimed) "Claimed" else if (completed) "Claim reward" else "In progress")
+                    }
+                }
+            }
+        }
+
+        Spacer(Modifier.height(8.dp))
         Text("Pawchievements", modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
         pawchievements.forEach { achievement ->
             val unlocked = achievement.unlocked(state)
