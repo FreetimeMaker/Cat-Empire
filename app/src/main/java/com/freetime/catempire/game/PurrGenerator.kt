@@ -14,8 +14,17 @@ data class PurrGenerator(
     val nextCost: Double
         get() = baseCost * 1.15.pow(owned)
 
+    val milestoneCount: Int
+        get() = GENERATOR_MILESTONES.count { owned >= it }
+
+    val milestoneMultiplier: Double
+        get() = 1 shl milestoneCount
+
     val production: Double
-        get() = basePurrsPerSecond * owned
+        get() = basePurrsPerSecond * owned * milestoneMultiplier
+
+    val nextMilestone: Int?
+        get() = GENERATOR_MILESTONES.firstOrNull { owned < it }
 }
 
 fun starterGenerators() = listOf(
@@ -30,3 +39,6 @@ fun starterGenerators() = listOf(
     PurrGenerator("cat_city", "Cat City", "🌆", "An entire city dedicated to feline productivity.", 5_100_000_000.0, 260_000.0),
     PurrGenerator("cat_planet", "Cat Planet", "🪐", "A whole world where every citizen is a cat.", 75_000_000_000.0, 1_600_000.0),
 )
+
+
+val GENERATOR_MILESTONES = listOf(10, 25, 50, 100)
