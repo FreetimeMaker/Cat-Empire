@@ -236,6 +236,36 @@ fun GameScreen(
         }
 
         Spacer(Modifier.height(4.dp))
+        Text("Purr Generators", modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        Text(
+            "Buy more generators to grow automatic Purr production. Every purchase makes that generator more expensive.",
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        state.generators.forEach { generator ->
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(generator.emoji, style = MaterialTheme.typography.headlineLarge)
+                    Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                        Text(generator.name + " · " + generator.owned, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text(generator.description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("Each: " + formatPurrs(generator.basePurrsPerSecond) + "/s · Total: " + formatPurrs(generator.production) + "/s")
+                    }
+                    Button(
+                        onClick = { viewModel.buyGenerator(generator.id) },
+                        enabled = state.purrs >= generator.nextCost,
+                    ) {
+                        Text("♡ " + formatPurrs(generator.nextCost))
+                    }
+                }
+            }
+        }
+
+        Spacer(Modifier.height(4.dp))
         Text("Morning Meow", modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
