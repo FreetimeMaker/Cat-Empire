@@ -14,6 +14,9 @@ class GameSaveRepository(context: Context) {
             .putLong("selectedCatId", state.selectedCatId ?: -1L)
             .putInt("homeLevel", state.homeLevel)
             .putInt("lives", state.lives)
+            .putInt("life_points", state.lifePoints)
+            .putInt("life_points_total", state.totalLifePoints)
+            .putString("life_upgrades", state.lifeUpgradeLevels.entries.joinToString(";") { it.key + ":" + it.value })
             .putInt("daily_s", state.dailyStreak)
             .putLong("daily_t", state.lastDailyClaimAt)
             .putString("dq_day", state.dailyQuestDay)
@@ -62,6 +65,12 @@ class GameSaveRepository(context: Context) {
             discoveredRarities = parseRarities(prefs.getString("dex_r", "").orEmpty()),
             homeLevel = prefs.getInt("homeLevel", 0),
             lives = prefs.getInt("lives", 0),
+            lifePoints = prefs.getInt("life_points", 0),
+            totalLifePoints = prefs.getInt("life_points_total", 0),
+            lifeUpgradeLevels = prefs.getString("life_upgrades", "").orEmpty().split(";").mapNotNull { entry ->
+                val parts = entry.split(":")
+                if (parts.size == 2) parts[1].toIntOrNull()?.let { parts[0] to it } else null
+            }.toMap(),
             dailyStreak = prefs.getInt("daily_s", 0),
             lastDailyClaimAt = prefs.getLong("daily_t", 0L),
             dailyQuestDay = prefs.getString("dq_day", currentDayKey()) ?: currentDayKey(),
