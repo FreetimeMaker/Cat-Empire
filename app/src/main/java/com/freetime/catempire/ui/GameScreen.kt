@@ -254,6 +254,24 @@ fun GameScreen(
                         Text(generator.name + " · " + generator.owned, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Text(generator.description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Text("Each: " + formatPurrs(generator.basePurrsPerSecond) + "/s · Total: " + formatPurrs(generator.production) + "/s")
+                        if (generator.milestoneCount > 0) {
+                            Text(
+                                "Milestone bonus: x" + purrFormat.format(generator.milestoneMultiplier.toDouble()),
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                        }
+                        generator.nextMilestone?.let { next ->
+                            Text(
+                                "Next x2 at " + next + " · " + (next - generator.owned) + " more",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        } ?: Text(
+                            "All production milestones unlocked",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
                     }
                     Button(
                         onClick = { viewModel.buyGenerator(generator.id) },
