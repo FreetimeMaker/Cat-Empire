@@ -19,6 +19,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         startActivityLoop()
         startEventLoop()
         startStrayTimer()
+        startGoldenCatLoop()
         startAutoSave()
     }
 
@@ -531,6 +532,67 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                     selectedCatId = current.selectedCatId ?: id,
                     lastMysteryReward = message + " " + cat.name + " joined your empire.",
                 )
+            }
+        }
+    }
+
+    fun clickGoldenCat() {
+        val current = _state.value
+        if (current.goldenCat == null) return
+        val reward = GoldenCatReward.entries.random()
+        update { state ->
+            when (reward) {
+                GoldenCatReward.FRENZY -> state.copy(
+                    goldenCat = null,
+                    goldenCatsClicked = state.goldenCatsClicked + 1,
+                    goldenCatBuff = GoldenCatBuff("Golden Frenzy", 77, productionMultiplier = 7.0),
+                    lastEventResult = "Golden Cat! Purr production x7 for 77 seconds.",
+                )
+                GoldenCatReward.PET_FRENZY -> state.copy(
+                    goldenCat = null,
+                    goldenCatsClicked = state.goldenCatsClicked + 1,
+                    goldenCatBuff = GoldenCatBuff("Pet Frenzy", 13, petMultiplier = 77.0),
+                    lastEventResult = "Golden Cat! Petting power x77 for 13 seconds.",
+                )
+                GoldenCatReward.LUCKY_PURRS -> {
+                    val rewardPurrs = (state.purrsPerSecond * 900.0).coerceAtLeast(777.0)
+                    state.copy(
+                        goldenCat = null,
+                        goldenCatsClicked = state.goldenCatsClicked + 1,
+                        purrs = state.purrs + rewardPurrs,
+                        totalPurrsEarned = state.totalPurrsEarned + rewardPurrs,
+                        lastEventResult = "Lucky Golden Cat! +" + rewardPurrs.toLong() + " Purrs.",
+                    )
+                }
+            }
+        }
+    }
+
+    private fun startGoldenCatLoop() {
+        viewModelScope.launch {
+            var secondsUntilSpawn = 90
+            while (isActive) {
+                delay(1_000L)
+                val current = normalizeDaily(_state.value)
+                val visible = current.goldenCat
+                val buff = current.goldenCatBuff
+                val nextVisible = when {
+                    visible == null -> null
+                    visible.secondsLeft <= 1 -> null
+                    else -> visible.copy(secondsLeft = visible.secondsLeft - 1)
+                }
+                val nextBuff = when {
+                    buff == null -> null
+                    buff.secondsLeft <= 1 -> null
+                    else -> buff.copy(secondsLeft = buff.secondsLeft - 1)
+                }
+                if (visible == null) secondsUntilSpawn--
+                val shouldSpawn = visible == null && secondsUntilSpawn <= 0 && current.totalPets > 0
+                _state.value = current.copy(
+                    goldenCat = if (shouldSpawn) GoldenCat() else nextVisible,
+                    goldenCatBuff = nextBuff,
+                )
+                if (shouldSpawn) secondsUntilSpawn = (60..180).random()
             }
         }
     }
