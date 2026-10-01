@@ -105,7 +105,21 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
         update { state ->
             state.copy(ownedCats = state.ownedCats.map { cat ->
-                if (cat.id == catId) cat.copy(assignedRoomId = roomId) else cat
+                if (cat.id == catId) cat.copy(assignedRoomId = roomId, jobId = null) else cat
+            })
+        }
+    }
+
+    fun assignCatJob(catId: Long, jobId: String?) {
+        val current = _state.value
+        val cat = current.ownedCats.firstOrNull { it.id == catId } ?: return
+        if (jobId != null) {
+            val job = jobById(jobId) ?: return
+            if (cat.assignedRoomId != job.roomId) return
+        }
+        update { state ->
+            state.copy(ownedCats = state.ownedCats.map { owned ->
+                if (owned.id == catId) owned.copy(jobId = jobId) else owned
             })
         }
     }
