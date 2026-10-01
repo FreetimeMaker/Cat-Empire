@@ -307,6 +307,33 @@ fun GameScreen(
             }
         }
 
+        val availableGeneratorUpgrades = com.freetime.catempire.game.generatorUpgrades.filter { upgrade ->
+            upgrade.id !in state.purchasedGeneratorUpgrades &&
+                (state.generators.firstOrNull { it.id == upgrade.generatorId }?.owned ?: 0) >= upgrade.requiredOwned
+        }
+        if (availableGeneratorUpgrades.isNotEmpty()) {
+            Spacer(Modifier.height(8.dp))
+            Text("Generator Upgrades", modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+            Text("Permanent upgrades for this life unlock as you own more generators.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            availableGeneratorUpgrades.forEach { upgrade ->
+                val generator = state.generators.firstOrNull { it.id == upgrade.generatorId }
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Text((generator?.emoji ?: "🐱") + " " + upgrade.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text(upgrade.description, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("Requires " + upgrade.requiredOwned + " " + (generator?.name ?: "generators") + " · x" + purrFormat.format(upgrade.multiplier))
+                        Button(
+                            onClick = { viewModel.buyGeneratorUpgrade(upgrade.id) },
+                            enabled = state.purrs >= upgrade.cost,
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Text("Buy for ♡ " + formatPurrs(upgrade.cost))
+                        }
+                    }
+                }
+            }
+        }
+
         Spacer(Modifier.height(4.dp))
         Text("Morning Meow", modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
         Card(modifier = Modifier.fillMaxWidth()) {
