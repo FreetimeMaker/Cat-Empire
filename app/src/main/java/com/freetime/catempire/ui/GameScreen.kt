@@ -31,7 +31,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.freetime.catempire.game.BuyAmount
 import com.freetime.catempire.game.CatType
+import com.freetime.catempire.game.bulkCost
+import com.freetime.catempire.game.purchaseAmount
 import com.freetime.catempire.game.CatUpgrade
 import com.freetime.catempire.game.UpgradeEffect
 import com.freetime.catempire.game.GameViewModel
@@ -52,6 +55,7 @@ fun GameScreen(
     var petFeedback by remember { mutableStateOf(false) }
     var petPulse by remember { mutableStateOf(false) }
     var confirmNewLife by remember { mutableStateOf(false) }
+    var generatorBuyAmount by remember { mutableStateOf(BuyAmount.ONE) }
 
     LaunchedEffect(petFeedback) {
         if (petFeedback) {
@@ -242,6 +246,17 @@ fun GameScreen(
             modifier = Modifier.fillMaxWidth(),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            BuyAmount.entries.forEach { amount ->
+                Button(
+                    onClick = { generatorBuyAmount = amount },
+                    enabled = generatorBuyAmount != amount,
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text(amount.label)
+                }
+            }
+        }
         state.generators.forEach { generator ->
             Card(modifier = Modifier.fillMaxWidth()) {
                 Row(
@@ -273,11 +288,20 @@ fun GameScreen(
                             color = MaterialTheme.colorScheme.primary,
                         )
                     }
+                    val amount = generator.purchaseAmount(generatorBuyAmount, state.purrs)
+                    val cost = generator.bulkCost(amount)
                     Button(
-                        onClick = { viewModel.buyGenerator(generator.id) },
-                        enabled = state.purrs >= generator.nextCost,
+                        onClick = { viewModel.buyGenerator(generator.id, generatorBuyAmount) },
+                        enabled = amount > 0 && state.purrs >= cost,
                     ) {
-                        Text("♡ " + formatPurrs(generator.nextCost))
+                        Text(
+                            if (generatorBuyAmount == BuyAmount.MAX) {
+                                "Buy " + amount + "\n♡ " + formatPurrs(cost)
+                            } else {
+                                "Buy " + generatorBuyAmount.label + "\n♡ " + formatPurrs(cost)
+                            },
+                            textAlign = TextAlign.Center,
+                        )
                     }
                 }
             }
