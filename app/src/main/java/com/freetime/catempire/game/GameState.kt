@@ -39,6 +39,9 @@ data class GameState(
     val goldenCat: GoldenCat? = null,
     val goldenCatBuff: GoldenCatBuff? = null,
     val goldenCatsClicked: Long = 0L,
+    val totalGeneratorsBought: Long = 0L,
+    val highestPurrsPerSecond: Double = 0.0,
+    val playTimeSeconds: Long = 0L,
     val lastCatNapPurrs: Double = 0.0,
     val lastCatNapSeconds: Long = 0L,
 ) {
