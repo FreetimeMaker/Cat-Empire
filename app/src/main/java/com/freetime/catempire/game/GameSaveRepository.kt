@@ -29,6 +29,7 @@ class GameSaveRepository(context: Context) {
         state.cats.forEach { editor.putInt("cat_" + it.id, it.owned) }
         state.generators.forEach { editor.putInt("gen_" + it.id, it.owned) }
         editor.putString("gen_upgrades", state.purchasedGeneratorUpgrades.joinToString(";"))
+        editor.putString("gen_synergies", state.purchasedGeneratorSynergies.joinToString(";"))
         editor.putLong("golden_clicked", state.goldenCatsClicked)
         editor.putLong("generators_bought", state.totalGeneratorsBought)
         editor.putString("highest_pps", state.highestPurrsPerSecond.toString())
@@ -60,6 +61,7 @@ class GameSaveRepository(context: Context) {
             cats = restoredTypes,
             generators = starterGenerators().map { it.copy(owned = prefs.getInt("gen_" + it.id, 0)) },
             purchasedGeneratorUpgrades = prefs.getString("gen_upgrades", "").orEmpty().split(";").filter(String::isNotBlank).toSet(),
+            purchasedGeneratorSynergies = prefs.getString("gen_synergies", "").orEmpty().split(";").filter(String::isNotBlank).toSet(),
             goldenCatsClicked = prefs.getLong("golden_clicked", 0L),
             totalGeneratorsBought = prefs.getLong("generators_bought", 0L),
             highestPurrsPerSecond = prefs.getString("highest_pps", "0")?.toDoubleOrNull() ?: 0.0,
