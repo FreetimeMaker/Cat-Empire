@@ -365,6 +365,7 @@ fun GameScreen(
                     rooms = state.rooms.filter { state.homeLevel >= it.requiredHomeLevel },
                     roomOccupancy = state.ownedCats.groupingBy { it.assignedRoomId }.eachCount(),
                     onRoom = { roomId -> viewModel.assignCatToRoom(owned.id, roomId) },
+                    onJob = { jobId -> viewModel.assignCatJob(owned.id, jobId) },
                 )
             }
         }
@@ -438,6 +439,7 @@ private fun MyCatCard(
     rooms: List<com.freetime.catempire.game.CatRoom>,
     roomOccupancy: Map<String?, Int>,
     onRoom: (String?) -> Unit,
+    onJob: (String?) -> Unit,
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -497,6 +499,36 @@ private fun MyCatCard(
                         else "Assign to " + room.icon + " " + room.name + " (" + occupants + "/" + room.capacity + ")" +
                             if (matched) " +35%" else " +10%"
                     )
+                }
+            }
+            if (assignedRoom != null) {
+                val availableJobs = com.freetime.catempire.game.jobsForRoom(assignedRoom.id)
+                val currentJob = com.freetime.catempire.game.jobById(cat.jobId)
+                Text(
+                    "Job: " + (currentJob?.let { it.icon + " " + it.name } ?: "None"),
+                    fontWeight = FontWeight.SemiBold,
+                )
+                currentJob?.let { job ->
+                    val synergy = cat.personality in job.preferredPersonalities
+                    Text(
+                        job.description + " · x" + purrFormat.format(
+                            if (synergy) job.productionMultiplier + 0.10 else job.productionMultiplier
+                        ) + if (synergy) " · Personality synergy" else "",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Button(onClick = { onJob(null) }, modifier = Modifier.fillMaxWidth()) {
+                        Text("Leave job")
+                    }
+                }
+                availableJobs.filter { it.id != cat.jobId }.forEach { job ->
+                    val synergy = cat.personality in job.preferredPersonalities
+                    Button(onClick = { onJob(job.id) }, modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            job.icon + " " + job.name + " · x" +
+                                purrFormat.format(if (synergy) job.productionMultiplier + 0.10 else job.productionMultiplier) +
+                                if (synergy) " ★" else ""
+                        )
+                    }
                 }
             }
             val equipped = collarById(cat.collarId)
