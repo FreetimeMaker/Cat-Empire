@@ -46,6 +46,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             purrs = current.purrs + current.purrsPerPet,
             totalPets = current.totalPets + 1,
             totalPurrsEarned = current.totalPurrsEarned + current.purrsPerPet,
+            dailyPets = current.dailyPets + 1,
+            dailyPurrs = current.dailyPurrs + current.purrsPerPet,
             selectedCatId = selectedId,
             ownedCats = current.ownedCats.map { cat ->
                 if (cat.id == selectedId) cat.copy(
@@ -63,6 +65,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         update { state ->
             state.copy(
                 purrs = state.purrs - cost,
+                dailyFeeds = state.dailyFeeds + 1,
                 ownedCats = state.ownedCats.map { cat ->
                     if (cat.id == catId) cat.copy(
                         satiety = (cat.satiety + 30).coerceAtMost(100),
@@ -75,12 +78,17 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     fun playWithCat(catId: Long) {
         update { state ->
-            state.copy(ownedCats = state.ownedCats.map { cat ->
-                if (cat.id == catId && cat.energy >= 10) cat.copy(
+            val target = state.ownedCats.firstOrNull { it.id == catId }
+            val playCost = target?.let { 8 + it.personality.energyDrain } ?: Int.MAX_VALUE
+            state.copy(
+                dailyPlays = state.dailyPlays + if (target != null && target.energy >= playCost) 1 else 0,
+                ownedCats = state.ownedCats.map { cat ->
+                if (cat.id == catId && cat.energy >= playCost) cat.copy(
                     happiness = (cat.happiness + cat.personality.playHappiness).coerceAtMost(100),
                     energy = (cat.energy - (8 + cat.personality.energyDrain)).coerceAtLeast(0),
                 ) else cat
             })
+            )
         }
     }
 
@@ -190,6 +198,38 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         saves.save(_state.value)
     }
 
+    fun claimDailyQuest(id: String) {
+        val current = normalizeDaily(_state.value)
+        val quest = dailyQuests.firstOrNull { it.id == id } ?: return
+        val progress = when (quest.metric) {
+            DailyQuestMetric.PETS -> current.dailyPets
+            DailyQuestMetric.FEEDS -> current.dailyFeeds
+            DailyQuestMetric.PLAYS -> current.dailyPlays
+            DailyQuestMetric.PURRS -> current.dailyPurrs.toLong()
+        }
+        if (id in current.claimedDailyQuests || progress < quest.target) return
+        update {
+            it.copy(
+                purrs = it.purrs + quest.reward,
+                totalPurrsEarned = it.totalPurrsEarned + quest.reward,
+                claimedDailyQuests = it.claimedDailyQuests + id,
+            )
+        }
+    }
+
+    fun claimDailyQuestBonus() {
+        val current = normalizeDaily(_state.value)
+        if (current.dailyQuestBonusClaimed || current.claimedDailyQuests.size < dailyQuests.size) return
+        val reward = (current.purrsPerSecond * 300.0).coerceAtLeast(5_000.0)
+        update {
+            it.copy(
+                purrs = it.purrs + reward,
+                totalPurrsEarned = it.totalPurrsEarned + reward,
+                dailyQuestBonusClaimed = true,
+            )
+        }
+    }
+
     fun claimQuest(id: String) {
         val current = _state.value
         val quest = catQuests.firstOrNull { it.id == id } ?: return
@@ -268,8 +308,21 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private fun normalizeDaily(state: GameState): GameState {
+        val today = currentDayKey()
+        return if (state.dailyQuestDay == today) state else state.copy(
+            dailyQuestDay = today,
+            dailyPets = 0L,
+            dailyFeeds = 0L,
+            dailyPlays = 0L,
+            dailyPurrs = 0.0,
+            claimedDailyQuests = emptySet(),
+            dailyQuestBonusClaimed = false,
+        )
+    }
+
     private fun update(block: (GameState) -> GameState) {
-        _state.value = withDiscoveries(block(_state.value))
+        _state.value = withDiscoveries(block(normalizeDaily(_state.value)))
     }
 
     private fun startIdleLoop() {
@@ -282,6 +335,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                     _state.value = current.copy(
                         purrs = current.purrs + earned,
                         totalPurrsEarned = current.totalPurrsEarned + earned,
+                        dailyPurrs = current.dailyPurrs + earned,
                     )
                 }
             }
