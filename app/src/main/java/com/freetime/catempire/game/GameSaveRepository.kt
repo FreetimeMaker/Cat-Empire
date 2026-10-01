@@ -26,6 +26,7 @@ class GameSaveRepository(context: Context) {
         state.cats.forEach { editor.putInt("cat_" + it.id, it.owned) }
         state.generators.forEach { editor.putInt("gen_" + it.id, it.owned) }
         editor.putString("gen_upgrades", state.purchasedGeneratorUpgrades.joinToString(";"))
+        editor.putLong("golden_clicked", state.goldenCatsClicked)
         editor.putLong("ownedCatCount", state.ownedCats.size.toLong())
         state.ownedCats.forEachIndexed { index, cat ->
             editor.putString("ownedCat_" + index, listOf(cat.id, cat.typeId, cat.name, cat.personality.name, cat.rarity.name, cat.bondXp, cat.activity.name, cat.collarId, cat.happiness, cat.energy, cat.satiety, cat.assignedRoomId.orEmpty(), cat.jobId.orEmpty()).joinToString("|"))
@@ -53,6 +54,7 @@ class GameSaveRepository(context: Context) {
             cats = restoredTypes,
             generators = starterGenerators().map { it.copy(owned = prefs.getInt("gen_" + it.id, 0)) },
             purchasedGeneratorUpgrades = prefs.getString("gen_upgrades", "").orEmpty().split(";").filter(String::isNotBlank).toSet(),
+            goldenCatsClicked = prefs.getLong("golden_clicked", 0L),
             ownedCats = migratedCats,
             selectedCatId = prefs.getLong("selectedCatId", -1L).takeIf { it >= 0L },
             discoveredCatTypes = prefs.getString("dex_t", "").orEmpty().split(";").filter(String::isNotBlank).toSet(),
