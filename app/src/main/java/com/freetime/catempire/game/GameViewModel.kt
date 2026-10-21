@@ -92,11 +92,11 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             state.copy(
                 dailyPlays = state.dailyPlays + if (target != null && target.energy >= playCost) 1 else 0,
                 ownedCats = state.ownedCats.map { cat ->
-                if (cat.id == catId && cat.energy >= playCost) cat.copy(
-                    happiness = (cat.happiness + cat.personality.playHappiness).coerceAtMost(100),
-                    energy = (cat.energy - (8 + cat.personality.energyDrain)).coerceAtLeast(0),
-                ) else cat
-            })
+                    if (cat.id == catId && cat.energy >= playCost) cat.copy(
+                        happiness = (cat.happiness + cat.personality.playHappiness).coerceAtMost(100),
+                        energy = (cat.energy - (8 + cat.personality.energyDrain)).coerceAtLeast(0),
+                    ) else cat
+                },
             )
         }
     }

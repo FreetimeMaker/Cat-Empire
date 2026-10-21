@@ -291,7 +291,7 @@ fun GameScreen(
                         Text("Each: " + formatPurrs(generator.basePurrsPerSecond) + "/s · Total: " + formatPurrs(generator.production) + "/s")
                         if (generator.milestoneCount > 0) {
                             Text(
-                                "Milestone bonus: x" + purrFormat.format(generator.milestoneMultiplier.toDouble()),
+                                "Milestone bonus: x" + purrFormat.format(generator.milestoneMultiplier),
                                 color = MaterialTheme.colorScheme.primary,
                                 fontWeight = FontWeight.SemiBold,
                             )
@@ -938,11 +938,19 @@ private fun Stat(label: String, value: String) {
 
 private val purrFormat = DecimalFormat("#,##0.##")
 
-private fun formatPurrs(value: Double): String = when {
-    value >= 1_000_000_000 -> purrFormat.format(value / 1_000_000_000) + "B"
-    value >= 1_000_000 -> purrFormat.format(value / 1_000_000) + "M"
-    value >= 1_000 -> purrFormat.format(value / 1_000) + "K"
-    else -> purrFormat.format(value)
+private fun formatPurrs(value: Double): String {
+    val suffixes = listOf(
+        1e24 to "Sp",
+        1e21 to "Sx",
+        1e18 to "Qi",
+        1e15 to "Qa",
+        1e12 to "T",
+        1e9 to "B",
+        1e6 to "M",
+        1e3 to "K",
+    )
+    val suffix = suffixes.firstOrNull { value >= it.first }
+    return if (suffix == null) purrFormat.format(value) else purrFormat.format(value / suffix.first) + suffix.second
 }
 
 

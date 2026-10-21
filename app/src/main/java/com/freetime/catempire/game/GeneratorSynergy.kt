@@ -22,6 +22,14 @@ val generatorSynergies = listOf(
     GeneratorSynergy("sanctuaries_factories", "Care Automation", "Sanctuaries and Purr Factories boost each other.", "cat_sanctuary_generator", "purr_factory", 25, 10, 50_000_000_000.0, 0.01),
     GeneratorSynergy("factories_cities", "Industrial Purring", "Purr Factories and Cat Cities boost each other.", "purr_factory", "cat_city", 25, 10, 500_000_000_000.0, 0.01),
     GeneratorSynergy("cities_planets", "Interplanetary Logistics", "Cat Cities and Cat Planets boost each other.", "cat_city", "cat_planet", 25, 10, 5_000_000_000_000.0, 0.01),
+    GeneratorSynergy("planets_corporations", "Cosmic Commerce", "Cat Planets and Cat Corporations boost each other.", "cat_planet", "cat_corporation", 25, 10, 7.5e13, 0.01),
+    GeneratorSynergy("corporations_countries", "Corporate State", "Cat Corporations and Cat Countries boost each other.", "cat_corporation", "cat_country", 25, 10, 1.1e15, 0.01),
+    GeneratorSynergy("countries_moons", "Lunar Territory", "Cat Countries and Cat Moons boost each other.", "cat_country", "cat_moon", 25, 10, 1.6e16, 0.01),
+    GeneratorSynergy("moons_galaxies", "Starlight Expansion", "Cat Moons and Cat Galaxies boost each other.", "cat_moon", "cat_galaxy", 25, 10, 2.5e17, 0.01),
+    GeneratorSynergy("galaxies_dimensions", "Dimensional Astronomy", "Cat Galaxies and Purr Dimensions boost each other.", "cat_galaxy", "purr_dimension", 25, 10, 4.0e18, 0.01),
+    GeneratorSynergy("dimensions_universes", "Reality Engine", "Purr Dimensions and Cat Universes boost each other.", "purr_dimension", "cat_universe", 25, 10, 7.0e19, 0.01),
+    GeneratorSynergy("universes_multiverses", "Infinite Possibilities", "Cat Universes and Cat Multiverses boost each other.", "cat_universe", "cat_multiverse", 25, 10, 1.3e21, 0.01),
+    GeneratorSynergy("multiverses_realms", "Beyond Infinity", "Cat Multiverses and Infinite Cat Realms boost each other.", "cat_multiverse", "infinite_cat_realm", 25, 10, 2.5e22, 0.01),
 )
 
 fun GameState.generatorSynergyMultiplier(generatorId: String): Double =
